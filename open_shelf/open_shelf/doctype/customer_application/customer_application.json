@@ -1,0 +1,295 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "autoname": "format:OS-APP-{#####}",
+  "creation": "2026-09-09 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "application_type",
+    "membership_plan",
+    "space_plan",
+    "plan_price",
+    "section_personal",
+    "title",
+    "first_name",
+    "last_name",
+    "address",
+    "phone",
+    "email",
+    "date_of_birth",
+    "gender",
+    "occupation",
+    "organization_school",
+    "section_source",
+    "how_heard_about_us",
+    "how_heard_other",
+    "section_activities",
+    "activities",
+    "section_consent",
+    "whatsapp_consent",
+    "email_consent",
+    "section_final",
+    "application_date",
+    "signature",
+    "section_system",
+    "user",
+    "member",
+    "status",
+    "submitted_on",
+    "reviewed_by",
+    "review_notes",
+    "membership",
+    "space_access",
+    "sales_invoice",
+    "payment"
+  ],
+  "fields": [
+    {
+      "fieldname": "application_type",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Application Type",
+      "options": "Membership\nSolo Working",
+      "reqd": 1
+    },
+    {
+      "fieldname": "membership_plan",
+      "fieldtype": "Link",
+      "label": "Membership Plan",
+      "options": "Membership Plan"
+    },
+    {
+      "fieldname": "space_plan",
+      "fieldtype": "Link",
+      "label": "Solo Working Plan",
+      "options": "Space Plan"
+    },
+    {
+      "fieldname": "plan_price",
+      "fieldtype": "Currency",
+      "label": "Plan Price",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_personal",
+      "fieldtype": "Section Break",
+      "label": "Personal Information"
+    },
+    {
+      "fieldname": "title",
+      "fieldtype": "Select",
+      "label": "Title",
+      "options": "Ms.\nMrs.\nMr."
+    },
+    {
+      "fieldname": "first_name",
+      "fieldtype": "Data",
+      "label": "First Name",
+      "reqd": 1
+    },
+    {
+      "fieldname": "last_name",
+      "fieldtype": "Data",
+      "label": "Last Name",
+      "reqd": 1
+    },
+    {
+      "fieldname": "address",
+      "fieldtype": "Small Text",
+      "label": "Address",
+      "reqd": 1
+    },
+    {
+      "fieldname": "phone",
+      "fieldtype": "Data",
+      "label": "Phone",
+      "reqd": 1
+    },
+    {
+      "fieldname": "email",
+      "fieldtype": "Data",
+      "label": "Email",
+      "reqd": 1
+    },
+    {
+      "fieldname": "date_of_birth",
+      "fieldtype": "Date",
+      "label": "Date of Birth"
+    },
+    {
+      "fieldname": "gender",
+      "fieldtype": "Select",
+      "label": "Gender",
+      "options": "Female\nMale\nOther\nPrefer not to say"
+    },
+    {
+      "fieldname": "occupation",
+      "fieldtype": "Data",
+      "label": "Occupation"
+    },
+    {
+      "fieldname": "organization_school",
+      "fieldtype": "Data",
+      "label": "Organization / School"
+    },
+    {
+      "fieldname": "section_source",
+      "fieldtype": "Section Break",
+      "label": "How Did You Hear About Us?"
+    },
+    {
+      "fieldname": "how_heard_about_us",
+      "fieldtype": "Select",
+      "label": "How Did You Hear About Us?",
+      "options": "Recommendation\nAdvertisement\nSocial Media\nSearch Engine\nOther"
+    },
+    {
+      "fieldname": "how_heard_other",
+      "fieldtype": "Data",
+      "label": "Other"
+    },
+    {
+      "fieldname": "section_activities",
+      "fieldtype": "Section Break",
+      "label": "Activities Interested In"
+    },
+    {
+      "fieldname": "activities",
+      "fieldtype": "Table",
+      "label": "Activities Interested In",
+      "options": "Application Activity"
+    },
+    {
+      "fieldname": "section_consent",
+      "fieldtype": "Section Break",
+      "label": "Consent"
+    },
+    {
+      "fieldname": "whatsapp_consent",
+      "fieldtype": "Check",
+      "label": "I agree to be part of the WhatsApp community and group.",
+      "reqd": 1
+    },
+    {
+      "fieldname": "email_consent",
+      "fieldtype": "Check",
+      "label": "I agree to receive group emails.",
+      "reqd": 1
+    },
+    {
+      "fieldname": "section_final",
+      "fieldtype": "Section Break",
+      "label": "Final Details"
+    },
+    {
+      "fieldname": "application_date",
+      "fieldtype": "Date",
+      "label": "Date",
+      "default": "Today",
+      "reqd": 1
+    },
+    {
+      "fieldname": "signature",
+      "fieldtype": "Attach Image",
+      "label": "Signature"
+    },
+    {
+      "fieldname": "section_system",
+      "fieldtype": "Section Break",
+      "label": "System Information",
+      "collapsible": 1
+    },
+    {
+      "fieldname": "user",
+      "fieldtype": "Link",
+      "label": "User",
+      "options": "User",
+      "read_only": 1
+    },
+    {
+      "fieldname": "member",
+      "fieldtype": "Link",
+      "label": "Member",
+      "options": "Member",
+      "read_only": 1
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Draft\nSubmitted\nPending Review\nApproved\nPayment Pending\nPaid\nActivated\nRejected\nCancelled\nPayment Failed",
+      "default": "Draft",
+      "in_list_view": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "submitted_on",
+      "fieldtype": "Datetime",
+      "label": "Submitted On",
+      "read_only": 1
+    },
+    {
+      "fieldname": "reviewed_by",
+      "fieldtype": "Link",
+      "label": "Reviewed By",
+      "options": "User",
+      "read_only": 1
+    },
+    {
+      "fieldname": "review_notes",
+      "fieldtype": "Small Text",
+      "label": "Review Notes"
+    },
+    {
+      "fieldname": "membership",
+      "fieldtype": "Link",
+      "label": "Membership",
+      "options": "Membership",
+      "read_only": 1
+    },
+    {
+      "fieldname": "space_access",
+      "fieldtype": "Link",
+      "label": "Space Access",
+      "options": "Space Access",
+      "read_only": 1
+    },
+    {
+      "fieldname": "sales_invoice",
+      "fieldtype": "Link",
+      "label": "Sales Invoice",
+      "options": "Sales Invoice",
+      "read_only": 1
+    },
+    {
+      "fieldname": "payment",
+      "fieldtype": "Link",
+      "label": "Payment",
+      "options": "Payment",
+      "read_only": 1
+    }
+  ],
+  "links": [],
+  "modified": "2026-09-09 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Open Shelf",
+  "name": "Customer Application",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}

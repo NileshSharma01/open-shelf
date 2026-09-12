@@ -5,3 +5,35 @@
 tags
 node_modules
 __pycache__
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Local backups
+backups/
+*.bak
+*.backup
+
+# Editor / IDE files
+.vscode/
+.idea/
+
+# OS / temporary files
+*.tmp
+*.temp
+
+# Development backup files
+*.backup*
+*.backup_*
+*.bak
+backup-*/
+navigation-backup-*/
+
+# Development snapshot files
+*.before-*

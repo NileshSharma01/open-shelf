@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Book a Working Spot Plans | Open Shelf</title>
+
+    <meta
+        name="description"
+        content="Open Shelf reading and working space plans."
+    >
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/css/open_shelf.css"
+    >
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="container navbar-inner">
+
+        <a href="/" class="brand">
+            <div class="brand-mark">OS</div>
+
+            <div class="brand-text">
+                <strong>Open Shelf</strong>
+                <span>Reading Foundation</span>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/">Home</a>
+
+            <a href="/catalogue">
+                Explore Our Collection
+            </a>
+
+            <a href="/space-plans">
+                Book a Working Spot
+            </a>
+
+            <a href="/membership">
+                Become a Member
+            </a>
+
+            <a href="/rental">
+                Rentals
+            </a>
+            <a href="/events">
+                Upcoming Events
+            </a>
+
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </nav>
+
+        <div class="nav-actions">
+
+            <a
+                href="/login"
+                class="btn btn-outline"
+            >
+                Login
+            </a>
+
+            <a
+                href="/membership"
+                class="btn btn-primary"
+            >
+                Join Us
+            </a>
+
+        </div>
+
+    </div>
+</header>
+
+
+<main>
+
+<section class="section">
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="eyebrow">
+                READ · WORK · CONNECT
+            </span>
+
+            <h1>
+                Book a Working Spot Plans
+            </h1>
+
+            <p>
+                Choose the space that works best for your reading,
+                studying or working needs.
+            </p>
+
+        </div>
+
+
+        <div
+            id="plansLoading"
+            class="loading"
+        >
+            Loading space plans...
+        </div>
+
+
+        <div
+            id="plansError"
+            class="error"
+            style="display:none;"
+        >
+            Unable to load space plans.
+            Please try again.
+        </div>
+
+
+        <div
+            id="plansGrid"
+            class="books-grid"
+            style="display:none;"
+        ></div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="container footer-content">
+
+        <div>
+            <strong>
+                Open Shelf Reading Foundation
+            </strong>
+        </div>
+
+        <div class="footer-text">
+            Books • Reading • Community
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+<script>
+
+(function () {
+
+    "use strict";
+
+    const API =
+        "/api/method/open_shelf.api.api";
+
+    const plansLoading =
+        document.getElementById("plansLoading");
+
+    const plansError =
+        document.getElementById("plansError");
+
+    const plansGrid =
+        document.getElementById("plansGrid");
+
+
+    function escapeHtml(value) {
+
+        return OpenShelf.escapeHtml(value);
+
+    }
+
+
+    function formatPrice(value) {
+
+        return OpenShelf.formatPrice(
+            Number(value || 0)
+        );
+
+    }
+
+
+    async function apiCall(
+        method,
+        body = null
+    ) {
+
+        const options = {
+            method: body ? "POST" : "GET",
+            credentials: "include",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+
+        if (body) {
+
+            options.headers[
+                "Content-Type"
+            ] = "application/json";
+
+            options.body =
+                JSON.stringify(body);
+
+        }
+
+
+        const response =
+            await fetch(
+                `${API}.${method}`,
+                options
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            data.exception ||
+            data.exc
+        ) {
+
+            throw new Error(
+                data.exception ||
+                data.message ||
+                "Request failed."
+            );
+
+        }
+
+
+        return data.message;
+
+    }
+
+
+    async function getCurrentUser() {
+
+        const result =
+            await apiCall(
+                "get_member"
+            );
+
+        return result;
+
+    }
+
+
+    async function purchasePlan(
+        plan
+    ) {
+
+        try {
+
+            const member =
+                await getCurrentUser();
+
+
+            if (!member) {
+
+                window.location.href =
+                    "/login";
+
+                return;
+
+            }
+
+
+            const confirmed =
+                window.confirm(
+                    `Purchase ${plan.plan_name} for ${formatPrice(plan.price)}?`
+                );
+
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+
+            const result =
+                await apiCall(
+                    "create_space_plan_invoice",
+                    {
+                        space_plan: plan.name
+                    }
+                );
+
+
+            if (!result || !result.invoice) {
+
+                throw new Error(
+                    "Invoice was not created."
+                );
+
+            }
+
+
+            await startRazorpayPayment(
+                result
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            window.alert(
+                error.message ||
+                "Unable to start payment."
+            );
+
+        }
+
+    }
+
+
+    async function startRazorpayPayment(
+        invoice
+    ) {
+
+        const order =
+            await apiCall(
+                "create_razorpay_order",
+                {
+                    sales_invoice:
+                        invoice.invoice
+                }
+            );
+
+
+        if (!order || !order.order_id) {
+
+            throw new Error(
+                "Unable to create Razorpay order."
+            );
+
+        }
+
+
+        if (
+            typeof Razorpay ===
+            "undefined"
+        ) {
+
+            throw new Error(
+                "Razorpay checkout is not available."
+            );
+
+        }
+
+
+        const options = {
+
+            key: order.key_id,
+
+            amount: order.amount,
+
+            currency: order.currency,
+
+            name:
+                "Open Shelf Reading Foundation",
+
+            description:
+                `Space Plan - ${invoice.plan_name}`,
+
+            order_id:
+                order.order_id,
+
+            handler:
+                async function (
+                    response
+                ) {
+
+                    try {
+
+                        const result =
+                            await apiCall(
+                                "verify_razorpay_payment",
+                                {
+                                    sales_invoice:
+                                        invoice.invoice,
+
+                                    razorpay_payment_id:
+                                        response.razorpay_payment_id,
+
+                                    razorpay_order_id:
+                                        response.razorpay_order_id,
+
+                                    razorpay_signature:
+                                        response.razorpay_signature
+                                }
+                            );
+
+
+                        if (
+                            result &&
+                            result.success
+                        ) {
+
+                            window.alert(
+                                "Payment successful. Your space access is now active."
+                            );
+
+                            window.location.reload();
+
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        console.error(
+                            error
+                        );
+
+                        window.alert(
+                            error.message ||
+                            "Payment verification failed."
+                        );
+
+                    }
+
+                },
+
+            prefill: {
+                name:
+                    order.customer_name
+            },
+
+            theme: {
+                color: "#111111"
+            }
+
+        };
+
+
+        const checkout =
+            new Razorpay(options);
+
+        checkout.open();
+
+    }
+
+
+    function createPlanCard(plan) {
+
+        const hours =
+            Number(
+                plan.max_hours_per_day || 0
+            );
+
+        const hoursText =
+            hours > 0
+                ? `${hours} hours per day`
+                : "Unlimited hours";
+
+
+        const wifiText =
+            Number(plan.wifi_included)
+                ? "Wi-Fi included"
+                : "Wi-Fi not included";
+
+
+        const additionalHour =
+            Number(
+                plan.additional_hour_fee || 0
+            );
+
+
+        const voucher =
+            Number(
+                plan.cafe_voucher_amount || 0
+            );
+
+
+        return `
+
+            <article class="book-card">
+
+                <div class="book-cover">
+
+                    <div class="cover-placeholder">
+                        OS
+                    </div>
+
+                </div>
+
+
+                <div class="book-content">
+
+                    <div class="book-category">
+                        Book a Working Spot
+                    </div>
+
+
+                    <h2 class="book-title">
+                        ${escapeHtml(plan.plan_name)}
+                    </h2>
+
+
+                    <div class="book-author">
+                        ${escapeHtml(plan.billing_period)}
+                    </div>
+
+
+                    <p style="margin:15px 0; line-height:1.6;">
+                        ${escapeHtml(
+                            plan.description ||
+                            "Open Shelf space access."
+                        )}
+                    </p>
+
+
+                    <div
+                        style="
+                            line-height:1.8;
+                            margin-bottom:15px;
+                        "
+                    >
+
+                        <div>
+                            <strong>Access:</strong>
+                            ${escapeHtml(hoursText)}
+                        </div>
+
+                        <div>
+                            <strong>Internet:</strong>
+                            ${escapeHtml(wifiText)}
+                        </div>
+
+                        ${
+                            additionalHour > 0
+                                ? `
+                                    <div>
+                                        <strong>
+                                            Additional hour:
+                                        </strong>
+                                        ${formatPrice(
+                                            additionalHour
+                                        )}
+                                    </div>
+                                  `
+                                : ""
+                        }
+
+                        ${
+                            voucher > 0
+                                ? `
+                                    <div>
+                                        <strong>
+                                            Café voucher:
+                                        </strong>
+                                        ${formatPrice(
+                                            voucher
+                                        )}
+                                    </div>
+                                  `
+                                : ""
+                        }
+
+                    </div>
+
+
+                    <div class="book-bottom">
+
+                        <div class="book-price">
+                            ${formatPrice(plan.price)}
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-plan-name="${escapeHtml(plan.name)}"
+                        >
+                            Choose Plan
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        `;
+
+    }
+
+
+    async function loadPlans() {
+
+        try {
+
+            const plans =
+                await apiCall(
+                    "get_space_plans"
+                );
+
+
+            plansLoading.style.display =
+                "none";
+
+
+            if (!plans || !plans.length) {
+
+                plansGrid.style.display =
+                    "block";
+
+                plansGrid.innerHTML = `
+                    <div class="empty">
+                        No space plans are currently available.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            plansGrid.innerHTML =
+                plans
+                    .map(createPlanCard)
+                    .join("");
+
+
+            plansGrid.style.display =
+                "grid";
+
+
+            plansGrid
+                .querySelectorAll(
+                    "[data-plan-name]"
+                )
+                .forEach(
+                    function (button) {
+
+                        button.addEventListener(
+                            "click",
+                            function () {
+
+                                const plan =
+                                    plans.find(
+                                        function (item) {
+                                            return (
+                                                item.name ===
+                                                button.dataset.planName
+                                            );
+                                        }
+                                    );
+
+
+                                if (plan) {
+
+                                    purchasePlan(
+                                        plan
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            plansLoading.style.display =
+                "none";
+
+            plansError.style.display =
+                "block";
+
+        }
+
+    }
+
+
+    loadPlans();
+
+})();
+
+</script>
+
+<!-- Razorpay Checkout -->
+<script
+    src="https://checkout.razorpay.com/v1/checkout.js"
+></script>
+
+</body>
+</html>

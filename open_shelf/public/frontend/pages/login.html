@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Open Shelf</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f7f3ed;
+            color: #2f2a26;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 40px 34px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand h1 {
+            margin: 0 0 8px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .brand p {
+            margin: 0;
+            color: #746c65;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 48px;
+            padding: 0 14px;
+            border: 1px solid #d8d1ca;
+            border-radius: 8px;
+            background: #fff;
+            color: #2f2a26;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #8b6f47;
+            box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.12);
+        }
+
+        .login-button {
+            width: 100%;
+            height: 48px;
+            border: 0;
+            border-radius: 8px;
+            background: #2f2a26;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.error {
+            display: block;
+            background: #fff0f0;
+            color: #a12626;
+            border: 1px solid #f0c4c4;
+        }
+
+        .message.success {
+            display: block;
+            background: #eef9f0;
+            color: #286b36;
+            border: 1px solid #c6e5cb;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 14px;
+            color: #746c65;
+        }
+
+        .register-link a {
+            color: #8b6f47;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-container">
+    <div class="login-card">
+
+        <div class="brand">
+            <h1>Open Shelf</h1>
+            <p>Welcome back. Please login to continue.</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+                <label for="email">Email or Username</label>
+
+                <input
+                    type="text"
+                    id="email"
+                    name="email"
+                    autocomplete="username"
+                    placeholder="Enter your email or username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                id="loginButton"
+                class="login-button"
+            >
+                Login
+            </button>
+
+        </form>
+
+        <div class="register-link">
+            Don't have an account?
+            <a href="/membership">
+                Become a Member
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+
+    "use strict";
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const message =
+        document.getElementById("message");
+
+
+    function showMessage(text, type) {
+
+        message.textContent = text;
+        message.className = "message " + type;
+    }
+
+
+    function getRequestedRedirect() {
+
+        const params =
+            new URLSearchParams(window.location.search);
+
+        return (
+            params.get("redirect-to") ||
+            params.get("redirect") ||
+            ""
+        );
+    }
+
+
+    function isLoginRedirect(url) {
+
+        if (!url) {
+            return true;
+        }
+
+        return (
+            url === "/login" ||
+            url === "/login/" ||
+            url.startsWith("/login?") ||
+            url.indexOf("/assets/open_shelf/frontend/pages/login.html") === 0
+        );
+    }
+
+
+    function isAdmin(userInfo) {
+
+        return (
+            userInfo &&
+            userInfo.is_admin === true
+        );
+    }
+
+
+    function getCustomerRedirect() {
+
+        return "/assets/open_shelf/frontend/pages/profile.html";
+    }
+
+
+    function getAdminRedirect() {
+
+        return "/assets/open_shelf/frontend/pages/admin.html";
+    }
+
+
+    async function resolveUsername(value) {
+
+        const response =
+            await fetch(
+                "/api/method/open_shelf.api.login.resolve_username",
+                {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    body:
+                        new URLSearchParams({
+                            usr: value
+                        })
+                }
+            );
+
+        let data = null;
+
+        try {
+            data = await response.json();
+        } catch (error) {
+            throw new Error(
+                "Unable to read the login service response."
+            );
+        }
+
+        if (
+            !response.ok ||
+            data.exc ||
+            !data.message ||
+            !data.message.username
+        ) {
+            throw new Error(
+                data.message ||
+                data.exception ||
+                "Invalid email or username."
+            );
+        }
+
+        return data.message.username;
+    }
+
+
+    async function performLogin(username, password) {
+
+        const response =
+            await fetch(
+                "/api/method/login",
+                {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    body:
+                        new URLSearchParams({
+                            usr: username,
+                            pwd: password
+                        })
+                }
+            );
+
+        let data = null;
+
+        try {
+            data = await response.json();
+        } catch (error) {
+            throw new Error(
+                "Unable to read the authentication response."
+            );
+        }
+
+        const successful =
+            response.ok &&
+            !data.exc &&
+            (
+                data.message === "Logged In" ||
+                data.message === "No App"
+            );
+
+        if (!successful) {
+            throw new Error(
+                data.message ||
+                data.exception ||
+                "Invalid login credentials."
+            );
+        }
+
+        return data;
+    }
+
+
+    async function getUserInfo() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/method/open_shelf.api.api.get_current_user_roles",
+                    {
+                        method: "GET",
+                        credentials: "same-origin",
+                        cache: "no-store"
+                    }
+                );
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const data =
+                await response.json();
+
+            if (
+                data.exc ||
+                !data.message
+            ) {
+                return null;
+            }
+
+            return data.message;
+
+        } catch (error) {
+
+            console.warn(
+                "Unable to determine Open Shelf user role.",
+                error
+            );
+
+            return null;
+        }
+    }
+
+
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const enteredUsername =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim();
+
+            const password =
+                document
+                    .getElementById("password")
+                    .value;
+
+            if (!enteredUsername || !password) {
+
+                showMessage(
+                    "Please enter your email or username and password.",
+                    "error"
+                );
+
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = "Logging in...";
+
+            try {
+
+                const actualUsername =
+                    await resolveUsername(
+                        enteredUsername
+                    );
+
+                await performLogin(
+                    actualUsername,
+                    password
+                );
+
+                const userInfo =
+                    await getUserInfo();
+
+                let redirect =
+                    getRequestedRedirect();
+
+                if (isAdmin(userInfo)) {
+
+                    redirect =
+                        getAdminRedirect();
+
+                } else if (
+                    !redirect ||
+                    isLoginRedirect(redirect)
+                ) {
+
+                    redirect =
+                        getCustomerRedirect();
+                }
+
+                showMessage(
+                    "Login successful. Opening your account...",
+                    "success"
+                );
+
+                /*
+                 * Give the browser one short moment to persist
+                 * the authenticated Frappe session cookie.
+                 */
+                window.setTimeout(
+                    function () {
+
+                        window.location.replace(
+                            redirect
+                        );
+
+                    },
+                    150
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Open Shelf login error:",
+                    error
+                );
+
+                showMessage(
+                    error && error.message
+                        ? error.message
+                        : "Login failed. Please try again.",
+                    "error"
+                );
+
+                loginButton.disabled = false;
+                loginButton.textContent = "Login";
+            }
+        }
+    );
+
+})();
+</script>
+
+</body>
+</html>

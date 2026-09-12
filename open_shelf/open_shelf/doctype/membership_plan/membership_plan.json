@@ -1,0 +1,95 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": null,
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "plan_name",
+  "duration_months",
+  "price",
+  "max_hours_per_day",
+  "additional_hour_fee",
+  "wifi_included",
+  "cafe_voucher_amount",
+  "description",
+  "active"
+ ],
+ "fields": [
+  {
+   "fieldname": "plan_name",
+   "label": "Plan Name",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "duration_months",
+   "label": "Duration (Months)",
+   "fieldtype": "Int",
+   "reqd": 1
+  },
+  {
+   "fieldname": "price",
+   "label": "Price",
+   "fieldtype": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "max_hours_per_day",
+   "label": "Maximum Hours Per Day",
+   "fieldtype": "Float",
+   "default": "0",
+   "description": "Use 0 for unlimited hours."
+  },
+  {
+   "fieldname": "additional_hour_fee",
+   "label": "Additional Hour Fee",
+   "fieldtype": "Currency",
+   "default": "0"
+  },
+  {
+   "fieldname": "wifi_included",
+   "label": "Wi-Fi Included",
+   "fieldtype": "Check",
+   "default": 0
+  },
+  {
+   "fieldname": "cafe_voucher_amount",
+   "label": "Café Voucher Amount",
+   "fieldtype": "Currency",
+   "default": "0"
+  },
+  {
+   "fieldname": "description",
+   "label": "Description",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "active",
+   "label": "Active",
+   "fieldtype": "Check",
+   "default": 1
+  }
+ ],
+ "links": [],
+ "module": "Open Shelf",
+ "name": "Membership Plan",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1,
+   "export": 1,
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

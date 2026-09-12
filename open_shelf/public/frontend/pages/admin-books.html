@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Books & Inventory | Open Shelf</title>
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/frontend/css/style.css"
+    >
+
+    <style>
+        body {
+            margin: 0;
+            background: #f7f7f5;
+        }
+
+        .admin-page {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 35px 20px 70px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 6px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-box input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .message {
+            display: none;
+            padding: 13px 15px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        th {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .book-title {
+            font-weight: 700;
+        }
+
+        .muted {
+            color: #6b7280;
+        }
+
+        .stock-good {
+            font-weight: 700;
+        }
+
+        .stock-low {
+            font-weight: 700;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-yes {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-no {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            border: 1px solid #d1d5db;
+            background: #fff;
+            border-radius: 8px;
+            padding: 7px 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+        }
+
+        .action-btn.delete {
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        .empty {
+            padding: 40px 15px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .modal {
+            max-width: 720px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close-btn {
+            border: 0;
+            background: transparent;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font: inherit;
+        }
+
+        .field textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding-top: 28px;
+        }
+
+        .checkbox-field input {
+            width: auto;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .loading {
+            padding: 30px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        @media (max-width: 700px) {
+            .admin-page {
+                padding: 25px 14px 50px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .toolbar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="admin-page">
+
+    <header class="page-header">
+        <div>
+            <h1>Books &amp; Inventory</h1>
+            <p>Manage books, stock, pricing and rental availability.</p>
+        </div>
+
+        <div class="header-actions">
+            <button
+                type="button"
+                class="btn btn-outline"
+                id="backBtn"
+            >
+                Dashboard
+            </button>
+
+            <button
+                type="button"
+                class="btn"
+                id="addBookBtn"
+            >
+                Add Book
+            </button>
+        </div>
+    </header>
+
+    <div id="errorMessage" class="message error"></div>
+    <div id="successMessage" class="message success"></div>
+
+    <section class="panel">
+
+        <div class="toolbar">
+
+            <div class="search-box">
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search by title, ISBN, author or publisher..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-outline"
+                id="refreshBtn"
+            >
+                Refresh
+            </button>
+
+        </div>
+
+    </section>
+
+    <section class="panel">
+
+        <div id="tableContainer">
+            <div class="loading">
+                Loading books...
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+
+<div
+    class="modal-backdrop"
+    id="bookModal"
+>
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">
+                Add Book
+            </h2>
+
+            <button
+                type="button"
+                class="close-btn"
+                id="closeModalBtn"
+            >
+                &times;
+            </button>
+
+        </div>
+
+        <form id="bookForm">
+
+            <input
+                type="hidden"
+                id="bookName"
+            >
+
+            <div class="form-grid">
+
+                <div class="field full">
+                    <label for="bookTitle">
+                        Book Title *
+                    </label>
+
+                    <input
+                        id="bookTitle"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="isbn">
+                        ISBN
+                    </label>
+
+                    <input id="isbn">
+                </div>
+
+                <div class="field">
+                    <label for="author">
+                        Author
+                    </label>
+
+                    <input id="author">
+                </div>
+
+                <div class="field">
+                    <label for="publisher">
+                        Publisher
+                    </label>
+
+                    <input id="publisher">
+                </div>
+
+                <div class="field">
+                    <label for="category">
+                        Category
+                    </label>
+
+                    <input id="category">
+                </div>
+
+                <div class="field">
+                    <label for="publicationYear">
+                        Publication Year
+                    </label>
+
+                    <input
+                        id="publicationYear"
+                        type="number"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="language">
+                        Language
+                    </label>
+
+                    <input id="language">
+                </div>
+
+                <div class="field">
+                    <label for="edition">
+                        Edition
+                    </label>
+
+                    <input id="edition">
+                </div>
+
+                <div class="field">
+                    <label for="sellingPrice">
+                        Selling Price (₹)
+                    </label>
+
+                    <input
+                        id="sellingPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="totalCopies">
+                        Total Copies
+                    </label>
+
+                    <input
+                        id="totalCopies"
+                        type="number"
+                        min="0"
+                        step="1"
+                     readonly>
+                </div>
+
+                <div class="field">
+                    <label for="availableCopies">
+                        Available Copies
+                    </label>
+
+                    <input
+                        id="availableCopies"
+                        type="number"
+                        min="0"
+                        step="1"
+                     readonly>
+                </div>
+
+                <div class="checkbox-field">
+                    <input
+                        id="rentalAllowed"
+                        type="checkbox"
+                    >
+
+                    <label for="rentalAllowed">
+                        Available for rental
+                    </label>
+                </div>
+
+                <div class="field full">
+                    <label for="description">
+                        Description
+                    </label>
+
+                    <textarea id="description"></textarea>
+                </div>
+
+                <div class="field full">
+                    <label for="image">
+                        Image URL
+                    </label>
+
+                    <input id="image">
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn btn-outline"
+                    id="cancelBtn"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn"
+                    id="saveBtn"
+                >
+                    Save Book
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+<script>
+(function () {
+
+    "use strict";
+
+    const API =
+        "/api/method/open_shelf.api.api";
+
+    const tableContainer =
+        document.getElementById("tableContainer");
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const modal =
+        document.getElementById("bookModal");
+
+    const bookForm =
+        document.getElementById("bookForm");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const successMessage =
+        document.getElementById("successMessage");
+
+    let searchTimer = null;
+
+    function showError(message) {
+
+        successMessage.style.display = "none";
+
+        errorMessage.textContent =
+            message || "Something went wrong.";
+
+        errorMessage.style.display = "block";
+    }
+
+    function showSuccess(message) {
+
+        errorMessage.style.display = "none";
+
+        successMessage.textContent =
+            message || "Operation completed.";
+
+        successMessage.style.display = "block";
+
+        setTimeout(function () {
+            successMessage.style.display = "none";
+        }, 3500);
+    }
+
+    function clearMessages() {
+
+        errorMessage.style.display = "none";
+        successMessage.style.display = "none";
+    }
+
+    function openModal(title) {
+
+            document.getElementById("totalCopies").readOnly = false;
+            document.getElementById("availableCopies").readOnly = false;
+
+        document.getElementById("modalTitle").textContent =
+            title;
+
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+
+        modal.style.display = "none";
+        document.body.style.overflow = "";
+        bookForm.reset();
+        document.getElementById("bookName").value = "";
+    }
+
+    function setField(id, value) {
+
+        document.getElementById(id).value =
+            value === null || value === undefined
+                ? ""
+                : value;
+    }
+
+    function renderBooks(books) {
+
+        if (!books || !books.length) {
+
+            tableContainer.innerHTML =
+                '<div class="empty">No books found.</div>';
+
+            return;
+        }
+
+        let html = `
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book</th>
+                            <th>ISBN</th>
+                            <th>Stock</th>
+                            <th>Rented</th>
+                            <th>Price</th>
+                            <th>Rental</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        books.forEach(function (book) {
+
+            const available =
+                Number(book.available_copies || 0);
+
+            const total =
+                Number(book.total_copies || 0);
+
+            const rented =
+                Number(book.rented_copies || 0);
+
+            const stockClass =
+                available === 0
+                    ? "stock-low"
+                    : "stock-good";
+
+            html += `
+                <tr>
+
+                    <td>
+                        <div class="book-title">
+                            ${OpenShelf.escapeHtml(book.book_title)}
+                        </div>
+
+                        <div class="muted">
+                            ${OpenShelf.escapeHtml(book.name)}
+                        </div>
+                    </td>
+
+                    <td>
+                        ${OpenShelf.escapeHtml(book.isbn || "—")}
+                    </td>
+
+                    <td>
+                        <span class="${stockClass}">
+                            ${available}
+                        </span>
+                        / ${total}
+                    </td>
+
+                    <td>
+                        ${rented}
+                    </td>
+
+                    <td>
+                        ${OpenShelf.formatPrice(book.selling_price)}
+                    </td>
+
+                    <td>
+                        ${
+                            Number(book.rental_allowed)
+                                ? '<span class="badge badge-yes">Yes</span>'
+                                : '<span class="badge badge-no">No</span>'
+                        }
+                    </td>
+
+                    <td>
+                        <div class="actions">
+
+                            <button
+                                type="button"
+                                class="action-btn"
+                                data-action="edit"
+                                data-book="${OpenShelf.escapeHtml(book.name)}"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                type="button"
+                                class="action-btn delete"
+                                data-action="delete"
+                                data-book="${OpenShelf.escapeHtml(book.name)}"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+                    </td>
+
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        tableContainer.innerHTML = html;
+
+        tableContainer
+            .querySelectorAll("[data-action='edit']")
+            .forEach(function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+                        editBook(button.dataset.book);
+                    }
+                );
+
+            });
+
+        tableContainer
+            .querySelectorAll("[data-action='delete']")
+            .forEach(function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+                        deleteBook(button.dataset.book);
+                    }
+                );
+
+            });
+    }
+
+    async function loadBooks() {
+
+        clearMessages();
+
+        tableContainer.innerHTML =
+            '<div class="loading">Loading books...</div>';
+
+        try {
+
+            const search =
+                searchInput.value.trim();
+
+            const params =
+                search
+                    ? "?search=" +
+                      encodeURIComponent(search)
+                    : "";
+
+            const books =
+                await OpenShelf.apiGet(
+                    `${API}.get_admin_books${params}`
+                );
+
+            renderBooks(books);
+
+        } catch (error) {
+
+            console.error(
+                "Books loading error:",
+                error
+            );
+
+            showError(
+                error.message ||
+                "Unable to load books."
+            );
+
+            tableContainer.innerHTML =
+                '<div class="empty">Unable to load books.</div>';
+        }
+    }
+
+    async function editBook(bookName) {
+
+        clearMessages();
+
+        try {
+
+            const book =
+                await OpenShelf.apiGet(
+                    `${API}.get_admin_book?book=` +
+                    encodeURIComponent(bookName)
+                );
+
+            document.getElementById("bookName").value =
+                book.name || "";
+
+            setField(
+                "bookTitle",
+                book.book_title
+            );
+
+            setField(
+                "isbn",
+                book.isbn
+            );
+
+            setField(
+                "author",
+                book.author
+            );
+
+            setField(
+                "publisher",
+                book.publisher
+            );
+
+            setField(
+                "category",
+                book.category
+            );
+
+            setField(
+                "publicationYear",
+                book.publication_year
+            );
+
+            setField(
+                "language",
+                book.language
+            );
+
+            setField(
+                "edition",
+                book.edition
+            );
+
+            setField(
+                "sellingPrice",
+                book.selling_price
+            );
+
+            setField(
+                "totalCopies",
+                book.total_copies
+            );
+
+            setField(
+                "availableCopies",
+                book.available_copies
+            );
+
+            document.getElementById("totalCopies").readOnly = true;
+            document.getElementById("availableCopies").readOnly = true;
+
+            setField(
+                "description",
+                book.description
+            );
+
+            setField(
+                "image",
+                book.image
+            );
+
+            document.getElementById("rentalAllowed").checked =
+                Number(book.rental_allowed) === 1;
+
+            openModal("Edit Book");
+
+        } catch (error) {
+
+            console.error(
+                "Book loading error:",
+                error
+            );
+
+            showError(
+                error.message ||
+                "Unable to load book."
+            );
+        }
+    }
+
+    async function deleteBook(bookName) {
+
+        const confirmed =
+            window.confirm(
+                "Delete this book? This can only happen when the book has no inventory history or active rentals."
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        clearMessages();
+
+        try {
+
+            await OpenShelf.apiPost(
+                `${API}.delete_admin_book`,
+                {
+                    book: bookName
+                }
+            );
+
+            showSuccess(
+                "Book deleted successfully."
+            );
+
+            await loadBooks();
+
+        } catch (error) {
+
+            console.error(
+                "Book deletion error:",
+                error
+            );
+
+            showError(
+                error.message ||
+                "Unable to delete book."
+            );
+        }
+    }
+
+    async function saveBook(event) {
+
+        event.preventDefault();
+
+        clearMessages();
+
+        const bookName =
+            document.getElementById("bookName").value;
+
+        const body = {
+
+            book_title:
+                document.getElementById("bookTitle").value.trim(),
+
+            isbn:
+                document.getElementById("isbn").value.trim(),
+
+            author:
+                document.getElementById("author").value.trim(),
+
+            publisher:
+                document.getElementById("publisher").value.trim(),
+
+            category:
+                document.getElementById("category").value.trim(),
+
+            publication_year:
+                document.getElementById("publicationYear").value,
+
+            language:
+                document.getElementById("language").value.trim(),
+
+            edition:
+                document.getElementById("edition").value.trim(),
+
+            total_copies:
+                document.getElementById("totalCopies").value,
+
+            available_copies:
+                document.getElementById("availableCopies").value,
+
+            selling_price:
+                document.getElementById("sellingPrice").value,
+
+            rental_allowed:
+                document.getElementById("rentalAllowed").checked
+                    ? 1
+                    : 0,
+
+            description:
+                document.getElementById("description").value,
+
+            image:
+                document.getElementById("image").value.trim()
+        };
+
+        const saveBtn =
+            document.getElementById("saveBtn");
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+
+        try {
+
+            if (bookName) {
+
+                body.book =
+                    bookName;
+
+                await OpenShelf.apiPost(
+                    `${API}.update_admin_book`,
+                    body
+                );
+
+                showSuccess(
+                    "Book updated successfully."
+                );
+
+            } else {
+
+                await OpenShelf.apiPost(
+                    `${API}.create_admin_book`,
+                    body
+                );
+
+                showSuccess(
+                    "Book created successfully."
+                );
+            }
+
+            closeModal();
+
+            await loadBooks();
+
+        } catch (error) {
+
+            console.error(
+                "Book save error:",
+                error
+            );
+
+            showError(
+                error.message ||
+                "Unable to save book."
+            );
+
+        } finally {
+
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Book";
+        }
+    }
+
+    document.getElementById("addBookBtn")
+        .addEventListener(
+            "click",
+            function () {
+
+                bookForm.reset();
+
+                document.getElementById("bookName").value =
+                    "";
+
+                document.getElementById("totalCopies").value =
+                    "0";
+
+                document.getElementById("availableCopies").value =
+                    "0";
+
+                document.getElementById("sellingPrice").value =
+                    "0";
+
+                openModal("Add Book");
+            }
+        );
+
+    document.getElementById("closeModalBtn")
+        .addEventListener(
+            "click",
+            closeModal
+        );
+
+    document.getElementById("cancelBtn")
+        .addEventListener(
+            "click",
+            closeModal
+        );
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+
+            if (event.target === modal) {
+                closeModal();
+            }
+
+        }
+    );
+
+    bookForm.addEventListener(
+        "submit",
+        saveBook
+    );
+
+    document.getElementById("refreshBtn")
+        .addEventListener(
+            "click",
+            loadBooks
+        );
+
+    document.getElementById("backBtn")
+        .addEventListener(
+            "click",
+            function () {
+
+                window.location.href =
+                    "/assets/open_shelf/frontend/pages/admin.html";
+            }
+        );
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+
+            clearTimeout(searchTimer);
+
+            searchTimer =
+                setTimeout(
+                    loadBooks,
+                    300
+                );
+        }
+    );
+
+    async function initialize() {
+
+        try {
+
+            const currentUser =
+                await OpenShelf.getCurrentUser();
+
+            if (!currentUser || currentUser === "Guest") {
+
+                const redirectTo =
+                    window.location.pathname +
+                    window.location.search;
+
+                window.location.href =
+                    "/login?redirect-to=" +
+                    encodeURIComponent(redirectTo);
+
+                return;
+            }
+
+            await loadBooks();
+
+        } catch (error) {
+
+            console.error(
+                "Admin books initialization error:",
+                error
+            );
+
+            showError(
+                error.message ||
+                "Unable to initialize admin books."
+            );
+        }
+    }
+
+    initialize();
+
+})();
+</script>
+
+</body>
+</html>

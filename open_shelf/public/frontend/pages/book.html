@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Book | Open Shelf Reading Foundation</title>
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/css/open_shelf.css"
+    >
+
+</head>
+
+
+<body>
+
+<header class="navbar">
+
+    <div class="container navbar-inner">
+
+        <a href="/" class="brand">
+
+            <div class="brand-mark">
+                OS
+            </div>
+
+            <div class="brand-text">
+                <strong>Open Shelf</strong>
+                <span>Reading Foundation</span>
+            </div>
+
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/catalogue">
+                Explore Our Collection
+            </a>
+
+            <a href="/space-plans">
+                Book a Working Spot
+            </a>
+
+            <a href="/membership">
+                Become a Member
+            </a>
+
+            <a href="/rental">
+                Rentals
+            </a>
+            <a href="/events">
+                Upcoming Events
+            </a>
+
+            <a href="/about">
+                About
+            </a>
+
+            <a href="/contact">
+                Contact
+            </a>
+
+        </nav>
+
+
+        <div class="nav-actions">
+
+            <a
+                href="/login"
+                class="btn btn-outline"
+            >
+                Login
+            </a>
+
+            <a
+                href="/membership"
+                class="btn btn-primary"
+            >
+                Join Us
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="book-page">
+
+    <div class="container">
+
+        <a
+            href="/catalogue"
+            class="back-link"
+        >
+            ← Back to Explore Our Collection
+        </a>
+
+
+        <div id="page-content">
+
+            <div class="loading">
+                Loading book...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="container footer-content">
+
+        <p>
+            © 2026 Open Shelf Reading Foundation
+        </p>
+
+        <p>
+            Books • Reading • Community
+        </p>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================================================
+     RENTAL ACCESS MODAL
+========================================================= -->
+
+<div
+    id="rental-access-modal"
+    class="modal-overlay"
+>
+    <div class="modal">
+
+        <h2 id="rental-access-title">
+            Membership required
+        </h2>
+
+        <p
+            id="rental-access-message"
+            class="modal-subtitle"
+        ></p>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="rental-access-cancel"
+                class="action-button cancel-button"
+            >
+                Not Now
+            </button>
+
+            <a
+                id="rental-access-login"
+                href="/login"
+                class="action-button cancel-button"
+                style="display:none;text-decoration:none;text-align:center;"
+            >
+                Login
+            </a>
+
+            <a
+                href="/membership"
+                class="action-button confirm-button"
+                style="text-decoration:none;text-align:center;"
+            >
+                Become a Member
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- =========================================================
+     RENT MODAL
+========================================================= -->
+
+<div
+    id="rent-modal"
+    class="modal-overlay"
+>
+
+    <div class="modal">
+
+        <h2>
+            Rent this book
+        </h2>
+
+
+        <p
+            id="rent-book-title"
+            class="modal-subtitle"
+        ></p>
+
+
+        <div
+            id="rent-message"
+            class="message"
+        ></div>
+
+
+        <div class="form-group">
+
+            <label for="rental-plan">
+                Rental Plan
+            </label>
+
+            <select id="rental-plan">
+
+                <option value="">
+                    Loading rental plans...
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="rental-quantity">
+                Quantity
+            </label>
+
+            <input
+                id="rental-quantity"
+                type="number"
+                min="1"
+                value="1"
+            >
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="cancel-rent"
+                class="action-button cancel-button"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                type="button"
+                id="confirm-rent"
+                class="action-button confirm-button"
+            >
+                Confirm Rental
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     PURCHASE MODAL
+========================================================= -->
+
+<div
+    id="purchase-modal"
+    class="modal-overlay"
+>
+
+    <div class="modal">
+
+        <h2>
+            Purchase this book
+        </h2>
+
+
+        <p
+            id="purchase-book-title"
+            class="modal-subtitle"
+        ></p>
+
+
+        <div
+            id="purchase-message"
+            class="message"
+        ></div>
+
+
+        <div class="form-group">
+
+            <label for="purchase-quantity">
+                Quantity
+            </label>
+
+            <input
+                id="purchase-quantity"
+                type="number"
+                min="1"
+                value="1"
+            >
+
+        </div>
+
+
+        <div class="purchase-summary">
+
+            <div>
+                <span>
+                    Unit price
+                </span>
+
+                <strong id="purchase-unit-price">
+                    ₹0
+                </strong>
+            </div>
+
+
+            <div>
+                <span>
+                    Total
+                </span>
+
+                <strong id="purchase-total-price">
+                    ₹0
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="cancel-purchase"
+                class="action-button cancel-button"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                type="button"
+                id="confirm-purchase"
+                class="action-button confirm-button"
+            >
+                Continue to Payment
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Razorpay Checkout -->
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const API =
+        "/api/method/open_shelf.api.api";
+
+
+    let currentBook = null;
+
+
+    /* =========================================================
+       HELPERS
+    ========================================================= */
+
+    function escapeHtml(value) {
+
+        return OpenShelf.escapeHtml(value);
+
+    }
+
+
+    function formatPrice(value) {
+
+        return OpenShelf.formatPrice(value);
+
+    }
+
+
+    function getBookName() {
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        return params.get("name");
+
+    }
+
+
+    function getInitial(title) {
+
+        if (!title) {
+            return "OS";
+        }
+
+        return title
+            .trim()
+            .charAt(0)
+            .toUpperCase();
+
+    }
+
+
+    async function apiGet(url) {
+
+        return await OpenShelf.apiGet(url);
+
+    }
+
+
+    async function apiPost(url, body) {
+
+        return await OpenShelf.apiPost(
+            url,
+            body
+        );
+
+    }
+
+
+    function redirectToLogin() {
+
+        const redirectUrl =
+            window.location.pathname +
+            window.location.search;
+
+
+        window.location.href =
+            "/login?redirect=" +
+            encodeURIComponent(
+                redirectUrl
+            );
+
+    }
+
+
+    /* =========================================================
+       LOAD BOOK
+    ========================================================= */
+
+    async function loadBook() {
+
+        const bookName =
+            getBookName();
+
+
+        const pageContent =
+            document.getElementById(
+                "page-content"
+            );
+
+
+        if (!bookName) {
+
+            pageContent.innerHTML = `
+                <div class="error-page">
+                    <h2>
+                        Book not found
+                    </h2>
+
+                    <p>
+                        No book was selected.
+                    </p>
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        try {
+
+            currentBook =
+                await apiGet(
+                    `${API}.get_book?book=${
+                        encodeURIComponent(bookName)
+                    }`
+                );
+
+
+            renderBook(currentBook);
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            pageContent.innerHTML = `
+                <div class="error-page">
+
+                    <h2>
+                        Unable to load book
+                    </h2>
+
+                    <p>
+                        ${escapeHtml(error.message)}
+                    </p>
+
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    /* =========================================================
+       RENDER BOOK
+    ========================================================= */
+
+    function renderBook(book) {
+
+        const pageContent =
+            document.getElementById(
+                "page-content"
+            );
+
+
+        const availableCopies =
+            Number(
+                book.available_copies || 0
+            );
+
+
+        const availabilityClass =
+            availableCopies > 0
+                ? "available"
+                : "unavailable";
+
+
+        const availabilityText =
+            availableCopies > 0
+                ? `${availableCopies} copies available`
+                : "Currently unavailable";
+
+
+        let coverHtml;
+
+
+        if (book.image) {
+
+            coverHtml = `
+                <img
+                    src="${escapeHtml(book.image)}"
+                    alt="${escapeHtml(book.book_title)}"
+                >
+            `;
+
+        }
+
+        else {
+
+            coverHtml = `
+                <div class="cover-placeholder">
+
+                    <div class="cover-initial">
+                        ${escapeHtml(
+                            getInitial(
+                                book.book_title
+                            )
+                        )}
+                    </div>
+
+                    <p>
+                        No cover image available
+                    </p>
+
+                </div>
+            `;
+
+        }
+
+
+        const rentButton =
+            book.rental_allowed &&
+            availableCopies > 0
+
+                ? `
+                    <button
+                        type="button"
+                        class="action-button rent-button"
+                        id="rent-book-button"
+                    >
+                        Rent this book
+                    </button>
+                `
+
+                : `
+                    <button
+                        type="button"
+                        class="action-button disabled-button"
+                        disabled
+                    >
+                        Rental unavailable
+                    </button>
+                `;
+
+
+        const buyButton =
+            availableCopies > 0
+                ? `
+                    <button
+                        type="button"
+                        class="action-button buy-button"
+                        id="buy-book-button"
+                    >
+                        Purchase
+                    </button>
+                `
+                : `
+                    <button
+                        type="button"
+                        class="action-button disabled-button"
+                        disabled
+                    >
+                        Buy unavailable
+                    </button>
+                `;
+
+
+        pageContent.innerHTML = `
+
+            <div class="book-layout">
+
+                <div class="book-cover">
+                    ${coverHtml}
+                </div>
+
+
+                <div class="book-details">
+
+                    ${
+                        book.category
+                            ? `
+                                <div class="book-category">
+                                    ${escapeHtml(
+                                        book.category
+                                    )}
+                                </div>
+                            `
+                            : ""
+                    }
+
+
+                    <h1 class="book-title">
+                        ${escapeHtml(
+                            book.book_title
+                        )}
+                    </h1>
+
+
+                    <p class="book-author">
+                        By
+                        ${
+                            escapeHtml(
+                                book.author ||
+                                "Author not specified"
+                            )
+                        }
+                    </p>
+
+
+                    <p class="description">
+                        ${
+                            escapeHtml(
+                                book.description ||
+                                "No description is available for this book yet."
+                            )
+                        }
+                    </p>
+
+
+                    <div class="book-info">
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                ISBN
+                            </span>
+
+                            <span class="info-value">
+                                ${
+                                    escapeHtml(
+                                        book.isbn ||
+                                        "Not available"
+                                    )
+                                }
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Edition
+                            </span>
+
+                            <span class="info-value">
+                                ${
+                                    escapeHtml(
+                                        book.edition ||
+                                        "Not available"
+                                    )
+                                }
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Language
+                            </span>
+
+                            <span class="info-value">
+                                ${
+                                    escapeHtml(
+                                        book.language ||
+                                        "Not specified"
+                                    )
+                                }
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Publication Year
+                            </span>
+
+                            <span class="info-value">
+                                ${
+                                    book.publication_year &&
+                                    Number(
+                                        book.publication_year
+                                    ) > 0
+                                        ? escapeHtml(
+                                            book.publication_year
+                                        )
+                                        : "Not available"
+                                }
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Total Copies
+                            </span>
+
+                            <span class="info-value">
+                                ${
+                                    Number(
+                                        book.total_copies || 0
+                                    )
+                                }
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Available Copies
+                            </span>
+
+                            <span class="info-value">
+                                ${availableCopies}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="purchase-box">
+
+                        <div class="price">
+                            ${formatPrice(
+                                book.selling_price
+                            )}
+                        </div>
+
+
+                        <div
+                            class="availability ${
+                                availabilityClass
+                            }"
+                        >
+                            ${availabilityText}
+                        </div>
+
+
+                        <div class="actions">
+
+                            ${rentButton}
+
+                            ${buyButton}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        const rentButtonElement =
+            document.getElementById(
+                "rent-book-button"
+            );
+
+
+        if (rentButtonElement) {
+
+            rentButtonElement.addEventListener(
+                "click",
+                function () {
+                    handleRentClick(book);
+                }
+            );
+
+        }
+
+
+        const buyButtonElement =
+            document.getElementById(
+                "buy-book-button"
+            );
+
+
+        if (buyButtonElement) {
+
+            buyButtonElement.addEventListener(
+                "click",
+                function () {
+                    handleBuyClick(book);
+                }
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       RENT LOGIN CHECK
+    ========================================================= */
+
+    async function handleRentClick(book) {
+
+        try {
+
+            const eligibility =
+                await apiGet(
+                    `${API}.check_rental_eligibility`
+                );
+
+            if (
+                !eligibility ||
+                !eligibility.logged_in
+            ) {
+
+                showRentalAccessModal(
+                    "Login required",
+                    "Please log in to your Open Shelf account before renting a book.",
+                    true
+                );
+
+                return;
+
+            }
+
+            if (
+                !eligibility.eligible
+            ) {
+
+                showRentalAccessModal(
+                    "Membership required",
+                    "Book rentals are available only to Open Shelf members. Please become a member to rent this book.",
+                    false
+                );
+
+                return;
+
+            }
+
+            openRentModal(book);
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showRentalAccessModal(
+                "Login required",
+                "Please log in to your Open Shelf account before renting a book.",
+                true
+            );
+
+        }
+
+    }
+
+
+    function showRentalAccessModal(
+        title,
+        message,
+        showLogin
+    ) {
+
+        const modal =
+            document.getElementById(
+                "rental-access-modal"
+            );
+
+        const titleElement =
+            document.getElementById(
+                "rental-access-title"
+            );
+
+        const messageElement =
+            document.getElementById(
+                "rental-access-message"
+            );
+
+        const loginButton =
+            document.getElementById(
+                "rental-access-login"
+            );
+
+        titleElement.textContent =
+            title;
+
+        messageElement.textContent =
+            message;
+
+        loginButton.style.display =
+            showLogin
+                ? "block"
+                : "none";
+
+        if (showLogin) {
+
+            const redirectUrl =
+                window.location.pathname +
+                window.location.search;
+
+            loginButton.href =
+                "/login?redirect=" +
+                encodeURIComponent(
+                    redirectUrl
+                );
+
+        }
+
+        modal.classList.add(
+            "active"
+        );
+
+    }
+
+
+    function closeRentalAccessModal() {
+
+        document
+            .getElementById(
+                "rental-access-modal"
+            )
+            .classList.remove(
+                "active"
+            );
+
+    }
+
+
+    /* =========================================================
+       RENT MODAL
+    ========================================================= */
+
+    async function openRentModal(book) {
+
+        const modal =
+            document.getElementById(
+                "rent-modal"
+            );
+
+
+        const title =
+            document.getElementById(
+                "rent-book-title"
+            );
+
+
+        const message =
+            document.getElementById(
+                "rent-message"
+            );
+
+
+        const planSelect =
+            document.getElementById(
+                "rental-plan"
+            );
+
+
+        const quantityInput =
+            document.getElementById(
+                "rental-quantity"
+            );
+
+
+        title.textContent =
+            book.book_title;
+
+
+        message.className =
+            "message";
+
+
+        message.textContent =
+            "";
+
+
+        quantityInput.value =
+            1;
+
+
+        quantityInput.max =
+            Number(
+                book.available_copies || 1
+            );
+
+
+        modal.classList.add(
+            "active"
+        );
+
+
+        planSelect.innerHTML = `
+            <option value="">
+                Loading rental plans...
+            </option>
+        `;
+
+
+        try {
+
+            const plans =
+                await apiGet(
+                    `${API}.get_rental_plans`
+                );
+
+
+            if (
+                !plans ||
+                !plans.length
+            ) {
+
+                planSelect.innerHTML = `
+                    <option value="">
+                        No rental plans available
+                    </option>
+                `;
+
+                return;
+
+            }
+
+
+            planSelect.innerHTML =
+                plans
+                    .map(
+                        function (plan) {
+
+                            return `
+                                <option
+                                    value="${escapeHtml(
+                                        plan.name
+                                    )}"
+                                >
+                                    ${
+                                        escapeHtml(
+                                            plan.plan_name ||
+                                            plan.name
+                                        )
+                                    }
+                                    —
+                                    ${
+                                        Number(
+                                            plan.duration_days
+                                        )
+                                    } days
+                                </option>
+                            `;
+
+                        }
+                    )
+                    .join("");
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            planSelect.innerHTML = `
+                <option value="">
+                    Unable to load rental plans
+                </option>
+            `;
+
+            showRentMessage(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    function closeRentModal() {
+
+        document
+            .getElementById("rent-modal")
+            .classList.remove("active");
+
+    }
+
+
+    function showRentMessage(
+        text,
+        type
+    ) {
+
+        const message =
+            document.getElementById(
+                "rent-message"
+            );
+
+
+        message.textContent =
+            text;
+
+
+        message.className =
+            "message " + type;
+
+    }
+
+
+    async function confirmRental() {
+
+        const bookName =
+            getBookName();
+
+
+        const plan =
+            document.getElementById(
+                "rental-plan"
+            ).value;
+
+
+        const quantity =
+            Number(
+                document.getElementById(
+                    "rental-quantity"
+                ).value
+            );
+
+
+        const confirmButton =
+            document.getElementById(
+                "confirm-rent"
+            );
+
+
+        if (!plan) {
+
+            showRentMessage(
+                "Please select a rental plan.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !quantity ||
+            quantity <= 0
+        ) {
+
+            showRentMessage(
+                "Quantity must be greater than 0.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        confirmButton.disabled =
+            true;
+
+
+        confirmButton.textContent =
+            "Processing...";
+
+
+        try {
+
+            const result =
+                await apiPost(
+                    `${API}.create_rental`,
+                    {
+                        book: bookName,
+                        rental_plan: plan,
+                        quantity: quantity
+                    }
+                );
+
+
+            showRentMessage(
+                `Rental created successfully. Rental ID: ${result.rental}. Due date: ${result.due_date}.`,
+                "success"
+            );
+
+
+            confirmButton.textContent =
+                "Rental Created";
+
+
+            setTimeout(
+                function () {
+
+                    closeRentModal();
+
+                    window.location.reload();
+
+                },
+                1800
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showRentMessage(
+                error.message,
+                "error"
+            );
+
+
+            confirmButton.disabled =
+                false;
+
+
+            confirmButton.textContent =
+                "Confirm Rental";
+
+        }
+
+    }
+
+
+    /* =========================================================
+       PURCHASE
+    ========================================================= */
+
+    async function handleBuyClick(book) {
+
+        try {
+
+            const user =
+                await apiGet(
+                    "/api/method/frappe.auth.get_logged_user"
+                );
+
+
+            if (
+                !user ||
+                user === "Guest"
+            ) {
+
+                redirectToLogin();
+
+                return;
+
+            }
+
+
+            openPurchaseModal(book);
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            redirectToLogin();
+
+        }
+
+    }
+
+
+    function openPurchaseModal(book) {
+
+        const modal =
+            document.getElementById(
+                "purchase-modal"
+            );
+
+
+        const title =
+            document.getElementById(
+                "purchase-book-title"
+            );
+
+
+        const quantityInput =
+            document.getElementById(
+                "purchase-quantity"
+            );
+
+
+        const unitPrice =
+            document.getElementById(
+                "purchase-unit-price"
+            );
+
+
+        title.textContent =
+            book.book_title;
+
+
+        quantityInput.value =
+            1;
+
+
+        quantityInput.max =
+            Number(
+                book.available_copies || 1
+            );
+
+
+        unitPrice.textContent =
+            formatPrice(
+                book.selling_price
+            );
+
+
+        updatePurchaseTotal();
+
+
+        document.getElementById(
+            "purchase-message"
+        ).className = "message";
+
+
+        document.getElementById(
+            "purchase-message"
+        ).textContent = "";
+
+
+        modal.classList.add(
+            "active"
+        );
+
+    }
+
+
+    function closePurchaseModal() {
+
+        document
+            .getElementById(
+                "purchase-modal"
+            )
+            .classList.remove(
+                "active"
+            );
+
+    }
+
+
+    function showPurchaseMessage(
+        text,
+        type
+    ) {
+
+        const message =
+            document.getElementById(
+                "purchase-message"
+            );
+
+
+        message.textContent =
+            text;
+
+
+        message.className =
+            "message " + type;
+
+    }
+
+
+    function updatePurchaseTotal() {
+
+        if (!currentBook) {
+            return;
+        }
+
+
+        const quantity =
+            Math.max(
+                1,
+                Number(
+                    document.getElementById(
+                        "purchase-quantity"
+                    ).value
+                ) || 1
+            );
+
+
+        const total =
+            quantity *
+            Number(
+                currentBook.selling_price || 0
+            );
+
+
+        document.getElementById(
+            "purchase-total-price"
+        ).textContent =
+            formatPrice(total);
+
+    }
+
+
+    /* =========================================================
+       CREATE INVOICE + RAZORPAY ORDER
+    ========================================================= */
+
+    async function startPurchase() {
+
+        if (!currentBook) {
+            return;
+        }
+
+
+        const quantity =
+            Math.max(
+                1,
+                Number(
+                    document.getElementById(
+                        "purchase-quantity"
+                    ).value
+                ) || 1
+            );
+
+
+        const confirmButton =
+            document.getElementById(
+                "confirm-purchase"
+            );
+
+
+        if (
+            !Number.isInteger(quantity) ||
+            quantity <= 0
+        ) {
+
+            showPurchaseMessage(
+                "Please enter a valid quantity.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            currentBook.available_copies !== undefined &&
+            Number(currentBook.available_copies) < quantity
+        ) {
+
+            showPurchaseMessage(
+                `Only ${currentBook.available_copies} copies are available.`,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        confirmButton.disabled =
+            true;
+
+        confirmButton.textContent =
+            "Creating payment...";
+
+
+        try {
+
+            /*
+             * First obtain the authenticated Frappe user.
+             */
+
+            const user =
+                await apiGet(
+                    "/api/method/frappe.auth.get_logged_user"
+                );
+
+
+            if (
+                !user ||
+                user === "Guest"
+            ) {
+
+                redirectToLogin();
+
+                return;
+
+            }
+
+
+            /*
+             * Step 1:
+             *
+             * Create our local Sales Invoice.
+             */
+
+            const invoiceResult =
+                await apiPost(
+                    `${API}.create_sales_invoice`,
+                    {
+                        customer_name:
+                            user,
+
+                        items:
+                            JSON.stringify([
+                                {
+                                    book:
+                                        currentBook.name,
+
+                                    qty:
+                                        quantity
+                                }
+                            ])
+                    }
+                );
+
+
+            if (
+                !invoiceResult ||
+                !invoiceResult.invoice
+            ) {
+
+                throw new Error(
+                    "Unable to create sales invoice."
+                );
+
+            }
+
+
+            /*
+             * Step 2:
+             *
+             * Create Razorpay Order on the server.
+             */
+
+            const orderResult =
+                await apiPost(
+                    `${API}.create_razorpay_order`,
+                    {
+                        sales_invoice:
+                            invoiceResult.invoice
+                    }
+                );
+
+
+            if (
+                !orderResult ||
+                !orderResult.order_id
+            ) {
+
+                throw new Error(
+                    "Unable to create Razorpay order."
+                );
+
+            }
+
+
+            if (
+                typeof Razorpay ===
+                "undefined"
+            ) {
+
+                throw new Error(
+                    "Razorpay Checkout could not be loaded."
+                );
+
+            }
+
+
+            closePurchaseModal();
+
+
+            /*
+             * Step 3:
+             *
+             * Open Razorpay Checkout.
+             */
+
+            const options = {
+
+                key:
+                    orderResult.key_id,
+
+                amount:
+                    orderResult.amount,
+
+                currency:
+                    orderResult.currency ||
+                    "INR",
+
+                name:
+                    "Open Shelf Reading Foundation",
+
+                description:
+                    currentBook.book_title,
+
+                order_id:
+                    orderResult.order_id,
+
+                prefill: {},
+
+                handler:
+                    async function (
+                        response
+                    ) {
+
+                        await verifyPayment(
+                            invoiceResult.invoice,
+                            response
+                        );
+
+                    },
+
+                modal: {
+
+                    ondismiss:
+                        function () {
+
+                            console.log(
+                                "Razorpay checkout closed."
+                            );
+
+                        }
+
+                }
+
+            };
+
+
+            const razorpay =
+                new Razorpay(
+                    options
+                );
+
+
+            razorpay.on(
+                "payment.failed",
+                function (response) {
+
+                    console.error(
+                        "Razorpay payment failed:",
+                        response
+                    );
+
+                    alert(
+                        response.error?.description ||
+                        "Payment failed. Please try again."
+                    );
+
+                }
+            );
+
+
+            razorpay.open();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showPurchaseMessage(
+                error.message,
+                "error"
+            );
+
+
+            confirmButton.disabled =
+                false;
+
+
+            confirmButton.textContent =
+                "Continue to Payment";
+
+        }
+
+    }
+
+
+    /* =========================================================
+       VERIFY RAZORPAY PAYMENT
+    ========================================================= */
+
+    async function verifyPayment(
+        invoice,
+        response
+    ) {
+
+        try {
+
+            const result =
+                await apiPost(
+                    `${API}.verify_razorpay_payment`,
+                    {
+                        sales_invoice:
+                            invoice,
+
+                        razorpay_payment_id:
+                            response.razorpay_payment_id,
+
+                        razorpay_order_id:
+                            response.razorpay_order_id,
+
+                        razorpay_signature:
+                            response.razorpay_signature
+                    }
+                );
+
+
+            if (
+                !result ||
+                !result.success
+            ) {
+
+                throw new Error(
+                    "Payment verification failed."
+                );
+
+            }
+
+
+            showPaymentSuccess(
+                invoice,
+                result
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Payment verification error:",
+                error
+            );
+
+
+            showPurchaseMessage(
+                error.message ||
+                "Payment verification failed.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       PAYMENT RESULT
+    ========================================================= */
+
+    function showPaymentSuccess(
+        invoice,
+        result
+    ) {
+
+        const pageContent =
+            document.getElementById(
+                "page-content"
+            );
+
+
+        pageContent.innerHTML = `
+
+            <div class="payment-result success-result">
+
+                <div class="payment-result-icon">
+                    ✓
+                </div>
+
+                <p class="eyebrow">
+                    PAYMENT SUCCESSFUL
+                </p>
+
+                <h1>
+                    Thank you for your purchase.
+                </h1>
+
+                <p>
+                    Your payment has been verified successfully.
+                </p>
+
+
+                <div class="payment-result-card">
+
+                    <div>
+                        <span>
+                            Invoice
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(invoice)}
+                        </strong>
+                    </div>
+
+
+                    <div>
+                        <span>
+                            Payment
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                result.payment ||
+                                "Verified"
+                            )}
+                        </strong>
+                    </div>
+
+
+                    <div>
+                        <span>
+                            Status
+                        </span>
+
+                        <strong>
+                            Paid
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="hero-actions">
+
+                    <a
+                        href="/catalogue"
+                        class="btn btn-primary"
+                    >
+                        Continue Shopping
+                    </a>
+
+                    <a
+                        href="/"
+                        class="btn btn-outline"
+                    >
+                        Return Home
+                    </a>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    function showPaymentFailure(
+        message
+    ) {
+
+        const pageContent =
+            document.getElementById(
+                "page-content"
+            );
+
+
+        pageContent.innerHTML = `
+
+            <div class="payment-result failure-result">
+
+                <div class="payment-result-icon">
+                    !
+                </div>
+
+                <p class="eyebrow">
+                    PAYMENT NOT VERIFIED
+                </p>
+
+                <h1>
+                    We could not verify the payment.
+                </h1>
+
+                <p>
+                    ${
+                        escapeHtml(
+                            message ||
+                            "Please contact Open Shelf if money was deducted."
+                        )
+                    }
+                </p>
+
+
+                <div class="hero-actions">
+
+                    <a
+                        href="/catalogue"
+                        class="btn btn-primary"
+                    >
+                        Back to Explore Our Collection
+                    </a>
+
+                    <a
+                        href="/"
+                        class="btn btn-outline"
+                    >
+                        Return Home
+                    </a>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================================
+       Upcoming Events
+    ========================================================= */
+
+    document
+        .getElementById(
+            "rental-access-cancel"
+        )
+        .addEventListener(
+            "click",
+            closeRentalAccessModal
+        );
+
+
+    document
+        .getElementById(
+            "rental-access-modal"
+        )
+        .addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === this
+                ) {
+                    closeRentalAccessModal();
+                }
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "cancel-rent"
+        )
+        .addEventListener(
+            "click",
+            closeRentModal
+        );
+
+
+    document
+        .getElementById(
+            "confirm-rent"
+        )
+        .addEventListener(
+            "click",
+            confirmRental
+        );
+
+
+    document
+        .getElementById(
+            "rent-modal"
+        )
+        .addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === this
+                ) {
+                    closeRentModal();
+                }
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "cancel-purchase"
+        )
+        .addEventListener(
+            "click",
+            closePurchaseModal
+        );
+
+
+    document
+        .getElementById(
+            "confirm-purchase"
+        )
+        .addEventListener(
+            "click",
+            startPurchase
+        );
+
+
+    document
+        .getElementById(
+            "purchase-quantity"
+        )
+        .addEventListener(
+            "input",
+            updatePurchaseTotal
+        );
+
+
+    document
+        .getElementById(
+            "purchase-modal"
+        )
+        .addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === this
+                ) {
+                    closePurchaseModal();
+                }
+
+            }
+        );
+
+
+    loadBook();
+
+})();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Rentals | Open Shelf Reading Foundation</title>
+
+    <meta
+        name="description"
+        content="View and manage your Open Shelf book rentals."
+    >
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/css/open_shelf.css"
+    >
+
+</head>
+
+
+<body>
+
+<header class="navbar">
+
+    <div class="container navbar-inner">
+
+        <a href="/" class="brand">
+
+            <div class="brand-mark">
+                OS
+            </div>
+
+            <div class="brand-text">
+                <strong>Open Shelf</strong>
+                <span>Reading Foundation</span>
+            </div>
+
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/catalogue">
+                Explore Our Collection
+            </a>
+            <a href="/membership">
+                Become a Member
+            </a>
+            
+            <a
+                href="/rental"
+                class="active"
+            >
+                Rentals
+            </a>
+            <a href="/events">
+                Upcoming Events
+            </a>
+            <a href="/about">
+                About
+            </a>
+            <a href="/contact">
+                Contact
+            </a>
+        </nav>
+        <div class="nav-actions">
+            
+            <a
+                href="/login"
+                class="btn btn-outline"
+            >
+                Login
+            </a>
+            
+            <a
+                href="/membership"
+                class="btn btn-primary"
+            >
+                Join Us
+            </a>
+        </div>
+    </div>
+</header>
+
+<main>
+
+<section class="page-header">
+    <div class="container">
+        <p class="eyebrow">
+            MY ACCOUNT
+        </p>
+        <h1>My Rentals</h1>
+    </div>
+</section>
+
+<section class="container" style="padding: 40px 0 80px;">
+
+    <div id="guestNotice" style="display:none; text-align:center; padding: 60px 20px;">
+        <p style="font-size: 18px; color: var(--muted); margin-bottom: 16px;">
+            Please log in to view your rentals.
+        </p>
+        
+            href="/login"
+            class="btn btn-primary"
+        >
+            Log In
+        </a>
+    </div>
+
+    <div id="emptyNotice" style="display:none; text-align:center; padding: 60px 20px;">
+        <p style="font-size: 18px; color: var(--muted); margin-bottom: 16px;">
+            You have no rentals yet.
+        </p>
+        
+            href="/catalogue"
+            class="btn btn-primary"
+        >
+            Browse the collection
+        </a>
+    </div>
+
+    <div id="errorNotice" style="display:none; text-align:center; padding: 40px 20px; color: var(--danger);"></div>
+
+    <div id="rentalsList" style="display:flex; flex-direction:column; gap:16px;"></div>
+
+</section>
+
+</main>
+
+<footer class="footer">
+    <div class="container footer-content">
+        <div>
+            <strong>
+                Open Shelf Reading Foundation
+            </strong>
+        </div>
+        <div class="footer-text">
+            Books • Reading • Community
+        </div>
+    </div>
+</footer>
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+<script>
+
+(function () {
+
+    "use strict";
+
+    const API =
+        "/api/method/open_shelf.api.api";
+
+    const guestNotice = document.getElementById("guestNotice");
+    const emptyNotice = document.getElementById("emptyNotice");
+    const errorNotice = document.getElementById("errorNotice");
+    const rentalsList = document.getElementById("rentalsList");
+
+    function showError(message) {
+        errorNotice.textContent = message;
+        errorNotice.style.display = "block";
+    }
+
+    function statusBadge(status, dueDate) {
+        let label = status;
+        let cssClass = "status-rented";
+
+        const today = new Date().toISOString().slice(0, 10);
+
+        if (status === "Rented" && dueDate && dueDate < today) {
+            label = "Overdue";
+            cssClass = "status-overdue";
+        } else if (status === "Returned") {
+            cssClass = "status-returned";
+        } else if (status === "Lost") {
+            cssClass = "status-lost";
+        }
+
+        return `<span class="status-badge ${cssClass}">${OpenShelf.escapeHtml(label)}</span>`;
+    }
+
+    function renderRentals(rentals) {
+
+        if (!rentals || rentals.length === 0) {
+            emptyNotice.style.display = "block";
+            return;
+        }
+
+        rentalsList.innerHTML = rentals.map(function (rental) {
+
+            const canReturn = rental.status === "Rented";
+
+            return `
+                <div class="rental-card" data-rental="${OpenShelf.escapeHtml(rental.name)}">
+                    <div class="rental-card-main">
+                        <div class="rental-card-title">
+                            ${OpenShelf.escapeHtml(rental.book)}
+                        </div>
+                        <div class="rental-card-meta">
+                            Plan: ${OpenShelf.escapeHtml(rental.rental_plan)} &middot;
+                            Qty: ${OpenShelf.escapeHtml(rental.quantity)}
+                        </div>
+                        <div class="rental-card-meta">
+                            Rented: ${OpenShelf.escapeHtml(rental.rental_date)} &middot;
+                            Due: ${OpenShelf.escapeHtml(rental.due_date)}
+                            ${rental.return_date ? " &middot; Returned: " + OpenShelf.escapeHtml(rental.return_date) : ""}
+                        </div>
+                    </div>
+                    <div class="rental-card-side">
+                        ${statusBadge(rental.status, rental.due_date)}
+                        ${canReturn ? `<button type="button" class="btn btn-outline return-btn" data-rental="${OpenShelf.escapeHtml(rental.name)}">Return</button>` : ""}
+                    </div>
+                </div>
+            `;
+
+        }).join("");
+
+        rentalsList.querySelectorAll(".return-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                handleReturn(btn.dataset.rental, btn);
+            });
+        });
+
+    }
+
+    async function handleReturn(rentalName, btn) {
+
+        btn.disabled = true;
+        btn.textContent = "Returning...";
+
+        try {
+            await OpenShelf.apiPost(
+                `${API}.return_rental`,
+                { rental: rentalName }
+            );
+            await loadRentals();
+        } catch (error) {
+            showError(error.message || "Could not return this rental.");
+            btn.disabled = false;
+            btn.textContent = "Return";
+        }
+
+    }
+
+    async function loadRentals() {
+
+        errorNotice.style.display = "none";
+        emptyNotice.style.display = "none";
+        rentalsList.innerHTML = "";
+
+        try {
+            const rentals = await OpenShelf.apiGet(
+                `${API}.get_member_rentals`
+            );
+            renderRentals(rentals);
+        } catch (error) {
+            showError(error.message || "Could not load your rentals.");
+        }
+
+    }
+
+    async function init() {
+
+        const guest = await OpenShelf.isGuest();
+
+        if (guest) {
+            guestNotice.style.display = "block";
+            return;
+        }
+
+        await loadRentals();
+
+    }
+
+    init();
+
+})();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Rentals - Open Shelf</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .topbar {
+            background: #172033;
+            color: white;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .topbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        }
+
+        .stat-label {
+            color: #687386;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
+            padding: 11px 12px;
+            font: inherit;
+            background: white;
+        }
+
+        .search {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .filter {
+            width: 180px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 16px;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .primary {
+            background: #172033;
+            color: white;
+        }
+
+        .secondary {
+            background: #e9edf4;
+            color: #172033;
+        }
+
+        .danger {
+            background: #b42318;
+            color: white;
+        }
+
+        .success {
+            background: #18794e;
+            color: white;
+        }
+
+        .warning {
+            background: #b54708;
+            color: white;
+        }
+
+        .table-wrap {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1150px;
+        }
+
+        th,
+        td {
+            padding: 14px 15px;
+            border-bottom: 1px solid #edf0f5;
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f8f9fb;
+            font-size: 12px;
+            color: #667085;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .actions button {
+            padding: 7px 10px;
+            font-size: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-rented {
+            background: #e7f0ff;
+            color: #2457a6;
+        }
+
+        .badge-returned {
+            background: #e8f7ee;
+            color: #18794e;
+        }
+
+        .badge-overdue {
+            background: #fff0e6;
+            color: #b54708;
+        }
+
+        .badge-lost {
+            background: #fdecec;
+            color: #b42318;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #667085;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 18px;
+            padding: 13px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .message.error {
+            display: block;
+            background: #fdecec;
+            color: #b42318;
+        }
+
+        .message.success {
+            display: block;
+            background: #e8f7ee;
+            color: #18794e;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 1000;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        .modal.open {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .modal-card {
+            width: min(700px, 100%);
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close {
+            background: #eef1f5;
+            color: #172033;
+            font-size: 18px;
+            padding: 7px 11px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475467;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #667085;
+            margin-top: 3px;
+        }
+
+        @media (max-width: 900px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                padding: 16px;
+            }
+
+            .topbar {
+                padding: 16px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .filter {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <h1>Open Shelf — Rentals</h1>
+    <a href="/assets/open_shelf/frontend/pages/admin.html">← Admin Dashboard</a>
+</header>
+
+<main class="container">
+
+    <div id="message" class="message"></div>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-label">Total Rentals</div>
+            <div class="stat-value" id="stat-total">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Currently Rented</div>
+            <div class="stat-value" id="stat-rented">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Overdue</div>
+            <div class="stat-value" id="stat-overdue">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Returned</div>
+            <div class="stat-value" id="stat-returned">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Lost</div>
+            <div class="stat-value" id="stat-lost">0</div>
+        </div>
+    </section>
+
+    <section class="toolbar">
+        <input
+            id="search"
+            class="search"
+            type="search"
+            placeholder="Search rental, book, member or plan..."
+        >
+
+        <select id="status" class="filter">
+            <option value="">All Statuses</option>
+            <option value="Rented">Rented</option>
+            <option value="Returned">Returned</option>
+            <option value="Overdue">Overdue</option>
+            <option value="Lost">Lost</option>
+        </select>
+
+        <button class="secondary" onclick="loadAll()">Refresh</button>
+        <button class="primary" onclick="openCreate()">+ New Rental</button>
+    </section>
+
+    <section class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rental</th>
+                    <th>Book</th>
+                    <th>Member</th>
+                    <th>Plan</th>
+                    <th>Qty</th>
+                    <th>Rental Date</th>
+                    <th>Due Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="rental-body">
+                <tr>
+                    <td colspan="10" class="empty">Loading rentals...</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<div id="modal" class="modal">
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h2>Create Rental</h2>
+            <button class="close" onclick="closeModal()">×</button>
+        </div>
+
+        <form id="rental-form">
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+                    <label for="book">Book *</label>
+                    <select id="book" required>
+                        <option value="">Select book</option>
+                    </select>
+                    <div id="book-hint" class="hint"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="member">Member</label>
+                    <select id="member">
+                        <option value="">Walk-in / Non-member</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="rental-plan">Rental Plan *</label>
+                    <select id="rental-plan" required>
+                        <option value="">Select rental plan</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantity">Quantity *</label>
+                    <input
+                        id="quantity"
+                        type="number"
+                        min="1"
+                        value="1"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="rental-date">Rental Date *</label>
+                    <input id="rental-date" type="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="due-date">Due Date</label>
+                    <input id="due-date" type="date">
+                    <div class="hint">
+                        Leave blank to calculate from the rental plan.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary" onclick="closeModal()">
+                    Cancel
+                </button>
+
+                <button type="submit" class="primary">
+                    Create Rental
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+<div id="rental-view-modal" class="modal">
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h2>Rental Details</h2>
+            <button
+                type="button"
+                class="close"
+                onclick="closeRentalViewModal()"
+            >
+                ×
+            </button>
+        </div>
+
+        <div id="rental-view-content">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Rental ID</label>
+                    <div id="viewRentalName" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <div id="viewRentalStatus" class="hint">—</div>
+                </div>
+
+                <div class="form-group full">
+                    <label>Book</label>
+                    <div id="viewRentalBook" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Member</label>
+                    <div id="viewRentalMember" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Rental Plan</label>
+                    <div id="viewRentalPlan" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <div id="viewRentalQuantity" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Rental Date</label>
+                    <div id="viewRentalDate" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <div id="viewRentalDueDate" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Return Date</label>
+                    <div id="viewRentalReturnDate" class="hint">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Document Status</label>
+                    <div id="viewRentalDocStatus" class="hint">—</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-actions">
+            <button
+                type="button"
+                class="secondary"
+                onclick="closeRentalViewModal()"
+            >
+                Close
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    let books = [];
+    let plans = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function escape(value) {
+        return OpenShelf.escapeHtml(value);
+    }
+
+    function showMessage(text, type) {
+        const element = $("message");
+
+        element.textContent = text;
+        element.className = "message " + type;
+
+        window.clearTimeout(showMessage.timer);
+
+        showMessage.timer = window.setTimeout(() => {
+            element.className = "message";
+            element.textContent = "";
+        }, 5000);
+    }
+
+    function statusBadge(status) {
+        const classes = {
+            Rented: "badge-rented",
+            Returned: "badge-returned",
+            Overdue: "badge-overdue",
+            Lost: "badge-lost"
+        };
+
+        return `
+            <span class="badge ${classes[status] || ""}">
+                ${escape(status || "")}
+            </span>
+        `;
+    }
+
+    async function loadStats() {
+        const stats = await OpenShelf.apiGet(
+            "/api/method/open_shelf.api.api.get_admin_rental_stats"
+        );
+
+        $("stat-total").textContent = stats.total || 0;
+        $("stat-rented").textContent = stats.rented || 0;
+        $("stat-overdue").textContent = stats.overdue || 0;
+        $("stat-returned").textContent = stats.returned || 0;
+        $("stat-lost").textContent = stats.lost || 0;
+    }
+
+    async function loadRentals() {
+        const search = $("search").value.trim();
+        const status = $("status").value;
+
+        let url =
+            "/api/method/open_shelf.api.api.get_admin_rentals";
+
+        const params = new URLSearchParams();
+
+        if (search) {
+            params.set("search", search);
+        }
+
+        if (status) {
+            params.set("status", status);
+        }
+
+        if (params.toString()) {
+            url += "?" + params.toString();
+        }
+
+        const rentals = await OpenShelf.apiGet(url);
+
+        renderRentals(rentals || []);
+    }
+
+    function renderRentals(rentals) {
+        const body = $("rental-body");
+
+        if (!rentals.length) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="10" class="empty">
+                        No rentals found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        body.innerHTML = rentals.map(rental => {
+
+            let actions = `
+                <button
+                    class="secondary"
+                    onclick="viewRental('${escape(rental.name)}')"
+                >
+                    View
+                </button>
+            `;
+
+            if (
+                rental.docstatus === 1 &&
+                (rental.status === "Rented" ||
+                 rental.status === "Overdue")
+            ) {
+                actions += `
+                    <button
+                        class="success"
+                        onclick="returnRental('${escape(rental.name)}')"
+                    >
+                        Return
+                    </button>
+                `;
+            }
+
+            if (
+                rental.docstatus === 1 &&
+                rental.status === "Rented" &&
+                rental.due_date &&
+                rental.due_date < new Date().toISOString().slice(0, 10)
+            ) {
+                actions += `
+                    <button
+                        class="warning"
+                        onclick="markOverdue('${escape(rental.name)}')"
+                    >
+                        Overdue
+                    </button>
+                `;
+            }
+
+            if (
+                rental.status !== "Rented" &&
+                rental.status !== "Overdue"
+            ) {
+                actions += `
+                    <button
+                        class="danger"
+                        onclick="deleteRental('${escape(rental.name)}')"
+                    >
+                        Delete
+                    </button>
+                `;
+            }
+
+            return `
+                <tr>
+                    <td><strong>${escape(rental.name)}</strong></td>
+
+                    <td>
+                        <strong>${escape(rental.book_title)}</strong><br>
+                        <small>${escape(rental.book)}</small>
+                    </td>
+
+                    <td>
+                        ${escape(rental.member_name)}
+                        ${
+                            rental.member
+                                ? `<br><small>${escape(rental.member)}</small>`
+                                : ""
+                        }
+                    </td>
+
+                    <td>${escape(rental.rental_plan_name)}</td>
+
+                    <td>${escape(rental.quantity)}</td>
+
+                    <td>${escape(rental.rental_date || "-")}</td>
+
+                    <td>${escape(rental.due_date || "-")}</td>
+
+                    <td>${escape(rental.return_date || "-")}</td>
+
+                    <td>${statusBadge(rental.status)}</td>
+
+                    <td>
+                        <div class="actions">
+                            ${actions}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+    }
+
+    async function loadFormData() {
+        const [
+            memberData,
+            bookData,
+            planData
+        ] = await Promise.all([
+            OpenShelf.apiGet(
+                "/api/method/open_shelf.api.api.get_admin_rental_members"
+            ),
+            OpenShelf.apiGet(
+                "/api/method/open_shelf.api.api.get_admin_rental_books"
+            ),
+            OpenShelf.apiGet(
+                "/api/method/open_shelf.api.api.get_admin_rental_plans"
+            )
+        ]);
+
+        books = bookData || [];
+        plans = planData || [];
+
+        $("member").innerHTML =
+            `<option value="">Walk-in / Non-member</option>` +
+            (memberData || []).map(member => `
+                <option value="${escape(member.name)}">
+                    ${escape(member.full_name)}
+                    ${member.email ? " — " + escape(member.email) : ""}
+                </option>
+            `).join("");
+
+        $("book").innerHTML =
+            `<option value="">Select book</option>` +
+            books.map(book => `
+                <option
+                    value="${escape(book.name)}"
+                    data-available="${escape(book.available_copies || 0)}"
+                >
+                    ${escape(book.book_title)}
+                    — ${escape(book.available_copies || 0)} available
+                </option>
+            `).join("");
+
+        $("rental-plan").innerHTML =
+            `<option value="">Select rental plan</option>` +
+            plans.map(plan => `
+                <option
+                    value="${escape(plan.name)}"
+                    data-duration="${escape(plan.duration_days || 0)}"
+                >
+                    ${escape(plan.plan_name)}
+                    — ${OpenShelf.formatPrice(plan.price)}
+                </option>
+            `).join("");
+    }
+
+    function setToday() {
+        const now = new Date();
+
+        const localDate =
+            now.getFullYear() +
+            "-" +
+            String(now.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(now.getDate()).padStart(2, "0");
+
+        $("rental-date").value = localDate;
+    }
+
+    function calculateDueDate() {
+        const rentalDate = $("rental-date").value;
+        const planSelect = $("rental-plan");
+        const option = planSelect.options[planSelect.selectedIndex];
+
+        if (!rentalDate || !option || !option.dataset.duration) {
+            return;
+        }
+
+        const duration = Number(option.dataset.duration);
+
+        if (!duration) {
+            return;
+        }
+
+        const date = new Date(rentalDate + "T00:00:00");
+
+        date.setDate(date.getDate() + duration);
+
+        const result =
+            date.getFullYear() +
+            "-" +
+            String(date.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(date.getDate()).padStart(2, "0");
+
+        $("due-date").value = result;
+    }
+
+    function updateBookHint() {
+        const option = $("book").options[$("book").selectedIndex];
+
+        if (!option || !option.value) {
+            $("book-hint").textContent = "";
+            return;
+        }
+
+        const available = Number(
+            option.dataset.available || 0
+        );
+
+        $("book-hint").textContent =
+            `Available copies: ${available}`;
+    }
+
+    window.openCreate = async function () {
+        $("rental-form").reset();
+        setToday();
+
+        $("book-hint").textContent = "";
+
+        await loadFormData();
+
+        $("modal").classList.add("open");
+    };
+
+    window.closeModal = function () {
+        $("modal").classList.remove("open");
+    };
+
+    window.viewRental = async function (rental) {
+        try {
+            const data = await OpenShelf.apiGet(
+                "/api/method/open_shelf.api.api.get_admin_rental?rental=" +
+                encodeURIComponent(rental)
+            );
+
+            const setViewValue = function (id, value) {
+                const element = document.getElementById(id);
+
+                if (element) {
+                    element.textContent =
+                        value === null ||
+                        value === undefined ||
+                        value === ""
+                            ? "—"
+                            : String(value);
+                }
+            };
+
+            setViewValue("viewRentalName", data.name);
+            setViewValue(
+                "viewRentalStatus",
+                data.status || "—"
+            );
+            setViewValue(
+                "viewRentalBook",
+                data.book_title || data.book
+            );
+            setViewValue(
+                "viewRentalMember",
+                data.member_name ||
+                data.member ||
+                "Walk-in / Non-member"
+            );
+            setViewValue(
+                "viewRentalPlan",
+                data.rental_plan_name || data.rental_plan
+            );
+            setViewValue(
+                "viewRentalQuantity",
+                data.quantity
+            );
+            setViewValue(
+                "viewRentalDate",
+                data.rental_date
+            );
+            setViewValue(
+                "viewRentalDueDate",
+                data.due_date
+            );
+            setViewValue(
+                "viewRentalReturnDate",
+                data.return_date
+            );
+            setViewValue(
+                "viewRentalDocStatus",
+                data.docstatus === 1
+                    ? "Submitted"
+                    : data.docstatus === 2
+                        ? "Cancelled"
+                        : "Draft"
+            );
+
+            const modal =
+                document.getElementById("rental-view-modal");
+
+            if (modal) {
+                modal.classList.add("open");
+            }
+
+        } catch (error) {
+            showMessage(
+                error.message || "Unable to load rental details.",
+                "error"
+            );
+        }
+    };
+
+    window.closeRentalViewModal = function () {
+        const modal =
+            document.getElementById("rental-view-modal");
+
+        if (modal) {
+            modal.classList.remove("open");
+        }
+    };
+
+    window.returnRental = async function (rental) {
+        if (
+            !confirm(
+                "Return rental " +
+                rental +
+                "?\n\nThis will restore the rented copies to inventory."
+            )
+        ) {
+            return;
+        }
+
+        try {
+            await OpenShelf.apiPost(
+                "/api/method/open_shelf.api.api.return_admin_rental",
+                {rental: rental}
+            );
+
+            showMessage(
+                "Rental " + rental + " returned successfully.",
+                "success"
+            );
+
+            await loadAll();
+
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    };
+
+    window.markOverdue = async function (rental) {
+        if (
+            !confirm(
+                "Mark rental " +
+                rental +
+                " as overdue?"
+            )
+        ) {
+            return;
+        }
+
+        try {
+            await OpenShelf.apiPost(
+                "/api/method/open_shelf.api.api.mark_admin_rental_overdue",
+                {rental: rental}
+            );
+
+            showMessage(
+                "Rental marked as overdue.",
+                "success"
+            );
+
+            await loadAll();
+
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    };
+
+    window.deleteRental = async function (rental) {
+        if (
+            !confirm(
+                "Delete rental " +
+                rental +
+                "?\n\nThis cannot be undone."
+            )
+        ) {
+            return;
+        }
+
+        try {
+            await OpenShelf.apiPost(
+                "/api/method/open_shelf.api.api.delete_admin_rental",
+                {rental: rental}
+            );
+
+            showMessage(
+                "Rental deleted successfully.",
+                "success"
+            );
+
+            await loadAll();
+
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    };
+
+    $("rental-form").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const book = $("book").value;
+        const member = $("member").value;
+        const rentalPlan = $("rental-plan").value;
+        const quantity = $("quantity").value;
+        const rentalDate = $("rental-date").value;
+        const dueDate = $("due-date").value;
+
+        if (!book || !rentalPlan || !quantity || !rentalDate) {
+            showMessage(
+                "Please fill all required fields.",
+                "error"
+            );
+            return;
+        }
+
+        const selectedBook = books.find(
+            item => item.name === book
+        );
+
+        if (
+            selectedBook &&
+            Number(quantity) > Number(selectedBook.available_copies || 0)
+        ) {
+            showMessage(
+                "Quantity is greater than available copies.",
+                "error"
+            );
+            return;
+        }
+
+        try {
+            const result = await OpenShelf.apiPost(
+                "/api/method/open_shelf.api.api.create_admin_rental",
+                {
+                    book: book,
+                    member: member,
+                    rental_plan: rentalPlan,
+                    quantity: quantity,
+                    rental_date: rentalDate,
+                    due_date: dueDate
+                }
+            );
+
+            closeModal();
+
+            showMessage(
+                "Rental " + result.rental + " created successfully.",
+                "success"
+            );
+
+            await loadAll();
+
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    });
+
+    $("book").addEventListener(
+        "change",
+        updateBookHint
+    );
+
+    $("rental-plan").addEventListener(
+        "change",
+        calculateDueDate
+    );
+
+    $("rental-date").addEventListener(
+        "change",
+        calculateDueDate
+    );
+
+    let searchTimer;
+
+    $("search").addEventListener("input", function () {
+        window.clearTimeout(searchTimer);
+
+        searchTimer = window.setTimeout(
+            loadRentals,
+            250
+        );
+    });
+
+    $("status").addEventListener(
+        "change",
+        loadRentals
+    );
+
+    window.loadAll = async function () {
+        try {
+            await Promise.all([
+                loadStats(),
+                loadRentals()
+            ]);
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    };
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        loadAll
+    );
+
+})();
+
+    const rentalViewModal =
+        document.getElementById("rental-view-modal");
+
+    if (rentalViewModal) {
+        rentalViewModal.addEventListener("click", function (event) {
+            if (event.target === rentalViewModal) {
+                closeRentalViewModal();
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

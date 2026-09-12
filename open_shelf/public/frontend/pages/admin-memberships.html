@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Open Shelf - Memberships</title>
+
+    <script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background: #f5f6f8;
+            color: #1f2937;
+        }
+
+        .topbar {
+            background: #111827;
+            color: white;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            opacity: .9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 28px auto;
+            padding: 0 20px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .search {
+            max-width: 430px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .primary {
+            background: #111827;
+            color: white;
+        }
+
+        .secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .table-wrap {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1050px;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f9fafb;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #6b7280;
+            white-space: nowrap;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-expired {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+        }
+
+        .actions button {
+            white-space: nowrap;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #6b7280;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: white;
+            width: min(800px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close {
+            background: transparent;
+            font-size: 24px;
+            padding: 2px 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .invoice-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 11px 12px;
+            min-height: 42px;
+            font-size: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        @media (max-width: 850px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .topbar {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 0 12px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .toolbar {
+                align-items: stretch;
+            }
+
+            .search {
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <h1>Open Shelf — Memberships</h1>
+
+    <a
+        class="back-link"
+        href="/assets/open_shelf/frontend/pages/admin.html"
+    >
+        ← Admin Dashboard
+    </a>
+</header>
+
+<main class="container">
+
+    <div id="message" class="message"></div>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-label">Total Memberships</div>
+            <div id="total-memberships" class="stat-value">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Active</div>
+            <div id="active-memberships" class="stat-value">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Pending</div>
+            <div id="pending-memberships" class="stat-value">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Expired / Cancelled</div>
+            <div id="closed-memberships" class="stat-value">0</div>
+        </div>
+    </section>
+
+    <section class="toolbar">
+
+        <input
+            id="search"
+            class="search"
+            type="search"
+            placeholder="Search member, plan or invoice..."
+        >
+
+        <select id="status-filter">
+            <option value="">All statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Active">Active</option>
+            <option value="Expired">Expired</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+
+        <button
+            class="secondary"
+            onclick="loadMemberships()"
+        >
+            Refresh
+        </button>
+
+        <button
+            class="primary"
+            onclick="openCreateModal()"
+        >
+            + Add Membership
+        </button>
+
+    </section>
+
+    <section class="table-wrap">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Membership</th>
+                    <th>Member</th>
+                    <th>Plan</th>
+                    <th>Invoice</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="memberships-body">
+                <tr>
+                    <td
+                        colspan="8"
+                        class="loading"
+                    >
+                        Loading memberships...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </section>
+
+</main>
+
+<div id="membership-modal" class="modal">
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <h2 id="modal-title">
+                Add Membership
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <form id="membership-form">
+
+            <input
+                type="hidden"
+                id="membership-name"
+            >
+
+            <div class="form-grid">
+
+                <div class="field">
+
+                    <label for="member">
+                        Member *
+                    </label>
+
+                    <select
+                        id="member"
+                        required
+                    >
+                        <option value="">
+                            Loading members...
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="membership-plan">
+                        Membership Plan *
+                    </label>
+
+                    <select
+                        id="membership-plan"
+                        required
+                    >
+                        <option value="">
+                            Loading plans...
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label for="start-date">
+                        Start Date *
+                    </label>
+
+                    <input
+                        id="start-date"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+                <div class="field">
+
+                    <label for="end-date">
+                        End Date *
+                    </label>
+
+                    <input
+                        id="end-date"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+                <div class="field">
+
+                    <label for="status">
+                        Status *
+                    </label>
+
+                    <select
+                        id="status"
+                        required
+                    >
+                        <option value="Pending">Pending</option>
+                        <option value="Active">Active</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        Sales Invoice
+                    </label>
+
+                    <div
+                        id="sales-invoice"
+                        class="invoice-box"
+                    >
+                        Not created
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary"
+                    onclick="closeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary"
+                >
+                    Save Membership
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    let memberships = [];
+    let members = [];
+    let plans = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function showMessage(text, type) {
+        const box = $("message");
+
+        box.textContent = text;
+        box.className = "message " + type;
+
+        setTimeout(function () {
+            box.className = "message";
+            box.textContent = "";
+        }, 4000);
+    }
+
+    function statusClass(status) {
+        if (status === "Active") {
+            return "status-active";
+        }
+
+        if (status === "Pending") {
+            return "status-pending";
+        }
+
+        if (status === "Cancelled") {
+            return "status-cancelled";
+        }
+
+        return "status-expired";
+    }
+
+    function renderStats() {
+        $("total-memberships").textContent =
+            memberships.length;
+
+        $("active-memberships").textContent =
+            memberships.filter(
+                m => m.status === "Active"
+            ).length;
+
+        $("pending-memberships").textContent =
+            memberships.filter(
+                m => m.status === "Pending"
+            ).length;
+
+        $("closed-memberships").textContent =
+            memberships.filter(
+                m =>
+                    m.status === "Expired" ||
+                    m.status === "Cancelled"
+            ).length;
+    }
+
+    function renderMemberships() {
+        const body = $("memberships-body");
+
+        if (!memberships.length) {
+            body.innerHTML = `
+                <tr>
+                    <td
+                        colspan="8"
+                        class="empty"
+                    >
+                        No memberships found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        body.innerHTML = memberships.map(membership => `
+            <tr>
+
+                <td>
+                    <strong>
+                        ${OpenShelf.escapeHtml(
+                            membership.name
+                        )}
+                    </strong>
+                </td>
+
+                <td>
+                    <strong>
+                        ${OpenShelf.escapeHtml(
+                            membership.member_full_name
+                        )}
+                    </strong>
+
+                    <div
+                        style="
+                            font-size:12px;
+                            color:#6b7280;
+                            margin-top:3px;
+                        "
+                    >
+                        ${OpenShelf.escapeHtml(
+                            membership.member
+                        )}
+                    </div>
+                </td>
+
+                <td>
+                    ${OpenShelf.escapeHtml(
+                        membership.plan_display_name
+                    )}
+                </td>
+
+                <td>
+                    ${OpenShelf.escapeHtml(
+                        membership.sales_invoice || "-"
+                    )}
+                </td>
+
+                <td>
+                    ${OpenShelf.escapeHtml(
+                        membership.start_date || "-"
+                    )}
+                </td>
+
+                <td>
+                    ${OpenShelf.escapeHtml(
+                        membership.end_date || "-"
+                    )}
+                </td>
+
+                <td>
+                    <span
+                        class="status ${
+                            statusClass(membership.status)
+                        }"
+                    >
+                        ${OpenShelf.escapeHtml(
+                            membership.status
+                        )}
+                    </span>
+                </td>
+
+                <td>
+                    <div class="actions">
+
+                        <button
+                            class="secondary"
+                            onclick="editMembership(
+                                '${encodeURIComponent(
+                                    membership.name
+                                )}'
+                            )"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="danger"
+                            onclick="deleteMembership(
+                                '${encodeURIComponent(
+                                    membership.name
+                                )}'
+                            )"
+                        >
+                            Delete
+                        </button>
+
+                    </div>
+                </td>
+
+            </tr>
+        `).join("");
+    }
+
+    async function loadMemberships() {
+        const search = $("search").value.trim();
+        const status = $("status-filter").value;
+
+        try {
+            let url =
+                "/api/method/open_shelf.api.api.get_admin_memberships";
+
+            const params = new URLSearchParams();
+
+            if (search) {
+                params.set("search", search);
+            }
+
+            if (status) {
+                params.set("status", status);
+            }
+
+            if (params.toString()) {
+                url += "?" + params.toString();
+            }
+
+            memberships =
+                await OpenShelf.apiGet(url);
+
+            renderStats();
+            renderMemberships();
+
+        } catch (error) {
+
+            $("memberships-body").innerHTML = `
+                <tr>
+                    <td
+                        colspan="8"
+                        class="empty"
+                    >
+                        ${OpenShelf.escapeHtml(
+                            error.message
+                        )}
+                    </td>
+                </tr>
+            `;
+
+            showMessage(
+                error.message,
+                "error"
+            );
+        }
+    }
+
+    async function loadFormData() {
+        const results =
+            await Promise.all([
+                OpenShelf.apiGet(
+                    "/api/method/open_shelf.api.api.get_admin_membership_members"
+                ),
+                OpenShelf.apiGet(
+                    "/api/method/open_shelf.api.api.get_admin_membership_plans"
+                )
+            ]);
+
+        members = results[0];
+        plans = results[1];
+
+        $("member").innerHTML =
+            '<option value="">Select Member</option>' +
+            members.map(member => `
+                <option value="${OpenShelf.escapeHtml(
+                    member.name
+                )}">
+                    ${OpenShelf.escapeHtml(
+                        member.full_name || member.name
+                    )}
+                    —
+                    ${OpenShelf.escapeHtml(
+                        member.name
+                    )}
+                </option>
+            `).join("");
+
+        $("membership-plan").innerHTML =
+            '<option value="">Select Plan</option>' +
+            plans.map(plan => `
+                <option
+                    value="${OpenShelf.escapeHtml(
+                        plan.name
+                    )}"
+                >
+                    ${OpenShelf.escapeHtml(
+                        plan.plan_name || plan.name
+                    )}
+                    — ${OpenShelf.formatPrice(
+                        plan.price
+                    )}
+                </option>
+            `).join("");
+    }
+
+    function calculateEndDate() {
+        const startValue =
+            $("start-date").value;
+
+        const planName =
+            $("membership-plan").value;
+
+        if (!startValue || !planName) {
+            return;
+        }
+
+        const plan =
+            plans.find(
+                p => p.name === planName
+            );
+
+        if (!plan) {
+            return;
+        }
+
+        const start =
+            new Date(startValue + "T00:00:00");
+
+        const months =
+            Number(plan.duration_months || 1);
+
+        const end =
+            new Date(start);
+
+        end.setDate(
+            end.getDate() +
+            (months * 30) -
+            1
+        );
+
+        const year =
+            end.getFullYear();
+
+        const month =
+            String(
+                end.getMonth() + 1
+            ).padStart(2, "0");
+
+        const day =
+            String(
+                end.getDate()
+            ).padStart(2, "0");
+
+        $("end-date").value =
+            `${year}-${month}-${day}`;
+    }
+
+    async function openCreateModal() {
+        try {
+            await loadFormData();
+
+            $("modal-title").textContent =
+                "Add Membership";
+
+            $("membership-name").value = "";
+
+            $("member").value = "";
+
+            $("membership-plan").value = "";
+
+            $("start-date").value =
+                new Date()
+                    .toISOString()
+                    .slice(0, 10);
+
+            $("end-date").value = "";
+
+            $("status").value =
+                "Pending";
+
+            $("sales-invoice").textContent =
+                "Not created";
+
+            $("membership-modal")
+                .classList
+                .add("open");
+
+        } catch (error) {
+            showMessage(
+                error.message,
+                "error"
+            );
+        }
+    }
+
+    async function editMembership(
+        encodedName
+    ) {
+        const name =
+            decodeURIComponent(
+                encodedName
+            );
+
+        try {
+            const membership =
+                await OpenShelf.apiGet(
+                    "/api/method/open_shelf.api.api.get_admin_membership?membership=" +
+                    encodeURIComponent(name)
+                );
+
+            await loadFormData();
+
+            $("modal-title").textContent =
+                "Edit Membership";
+
+            $("membership-name").value =
+                membership.name;
+
+            $("member").value =
+                membership.member || "";
+
+            $("membership-plan").value =
+                membership.membership_plan || "";
+
+            $("start-date").value =
+                membership.start_date || "";
+
+            $("end-date").value =
+                membership.end_date || "";
+
+            $("status").value =
+                membership.status || "Pending";
+
+            $("sales-invoice").textContent =
+                membership.sales_invoice ||
+                "Not created";
+
+            $("membership-modal")
+                .classList
+                .add("open");
+
+        } catch (error) {
+            showMessage(
+                error.message,
+                "error"
+            );
+        }
+    }
+
+    async function deleteMembership(
+        encodedName
+    ) {
+        const name =
+            decodeURIComponent(
+                encodedName
+            );
+
+        const membership =
+            memberships.find(
+                m => m.name === name
+            );
+
+        if (!membership) {
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                `Delete membership "${membership.name}"?`
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await OpenShelf.apiPost(
+                "/api/method/open_shelf.api.api.delete_admin_membership",
+                {
+                    membership: name
+                }
+            );
+
+            showMessage(
+                "Membership deleted successfully.",
+                "success"
+            );
+
+            await loadMemberships();
+
+        } catch (error) {
+            showMessage(
+                error.message,
+                "error"
+            );
+        }
+    }
+
+    function closeModal() {
+        $("membership-modal")
+            .classList
+            .remove("open");
+    }
+
+    $("membership-plan")
+        .addEventListener(
+            "change",
+            calculateEndDate
+        );
+
+    $("start-date")
+        .addEventListener(
+            "change",
+            calculateEndDate
+        );
+
+    $("membership-form")
+        .addEventListener(
+            "submit",
+            async function (event) {
+                event.preventDefault();
+
+                const membershipName =
+                    $("membership-name").value;
+
+                const payload = {
+                    member:
+                        $("member").value,
+
+                    membership_plan:
+                        $("membership-plan").value,
+
+                    start_date:
+                        $("start-date").value,
+
+                    end_date:
+                        $("end-date").value,
+
+                    status:
+                        $("status").value
+                };
+
+                try {
+                    if (!payload.member) {
+                        throw new Error(
+                            "Please select a Member."
+                        );
+                    }
+
+                    if (!payload.membership_plan) {
+                        throw new Error(
+                            "Please select a Membership Plan."
+                        );
+                    }
+
+                    if (!payload.start_date) {
+                        throw new Error(
+                            "Start Date is required."
+                        );
+                    }
+
+                    if (!payload.end_date) {
+                        throw new Error(
+                            "End Date is required."
+                        );
+                    }
+
+                    if (membershipName) {
+                        payload.membership =
+                            membershipName;
+
+                        await OpenShelf.apiPost(
+                            "/api/method/open_shelf.api.api.update_admin_membership",
+                            payload
+                        );
+
+                        showMessage(
+                            "Membership updated successfully.",
+                            "success"
+                        );
+
+                    } else {
+
+                        await OpenShelf.apiPost(
+                            "/api/method/open_shelf.api.api.create_admin_membership",
+                            payload
+                        );
+
+                        showMessage(
+                            "Membership created successfully.",
+                            "success"
+                        );
+                    }
+
+                    closeModal();
+
+                    await loadMemberships();
+
+                } catch (error) {
+                    showMessage(
+                        error.message,
+                        "error"
+                    );
+                }
+            }
+        );
+
+    $("search")
+        .addEventListener(
+            "input",
+            function () {
+                clearTimeout(
+                    window.membershipSearchTimer
+                );
+
+                window.membershipSearchTimer =
+                    setTimeout(
+                        loadMemberships,
+                        250
+                    );
+            }
+        );
+
+    $("status-filter")
+        .addEventListener(
+            "change",
+            loadMemberships
+        );
+
+    window.openCreateModal =
+        openCreateModal;
+
+    window.editMembership =
+        editMembership;
+
+    window.deleteMembership =
+        deleteMembership;
+
+    window.closeModal =
+        closeModal;
+
+    window.loadMemberships =
+        loadMemberships;
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        async function () {
+            await loadMemberships();
+        }
+    );
+
+})();
+</script>
+
+</body>
+</html>

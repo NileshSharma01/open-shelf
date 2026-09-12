@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | Open Shelf</title>
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/frontend/css/style.css"
+    >
+
+    <style>
+        body {
+            margin: 0;
+            background: #f7f7f5;
+        }
+
+        .admin-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 70px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .admin-header h1 {
+            margin: 0 0 6px;
+        }
+
+        .admin-header p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .admin-error {
+            display: none;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .admin-success {
+            display: none;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .admin-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .admin-section h2 {
+            margin: 0 0 18px;
+            font-size: 20px;
+        }
+
+        .admin-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .admin-link {
+            display: block;
+            padding: 18px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .admin-link:hover {
+            background: #f9fafb;
+        }
+
+        .admin-link-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .admin-link-description {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .loading {
+            color: #6b7280;
+        }
+
+        /* ----------------------------------------------------
+           SALES INVOICES
+        ---------------------------------------------------- */
+
+        .invoice-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .invoice-section-header h2 {
+            margin: 0;
+        }
+
+        .invoice-controls {
+            display: grid;
+            grid-template-columns: minmax(200px, 1fr) 180px auto;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-input,
+        .invoice-select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: white;
+            font: inherit;
+        }
+
+        .invoice-input:focus,
+        .invoice-select:focus {
+            outline: none;
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.12);
+        }
+
+        .invoice-table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .invoice-table th {
+            background: #f9fafb;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .invoice-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .invoice-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .invoice-number {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .invoice-customer {
+            font-weight: 600;
+        }
+
+        .invoice-subtext {
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .invoice-money {
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .invoice-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-unpaid {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-partly-paid {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-draft {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .status-submitted {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .invoice-actions {
+            white-space: nowrap;
+        }
+
+        .invoice-view-btn {
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #111827;
+            border-radius: 8px;
+            padding: 7px 11px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .invoice-view-btn:hover {
+            background: #f9fafb;
+        }
+
+        .invoice-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .invoice-loading {
+            padding: 30px 20px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .invoice-count {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        /* ----------------------------------------------------
+           MODAL
+        ---------------------------------------------------- */
+
+        .invoice-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(17, 24, 39, 0.5);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .invoice-modal.open {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .invoice-modal-card {
+            width: min(900px, 100%);
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+        }
+
+        .invoice-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 22px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .invoice-modal-title {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .invoice-modal-subtitle {
+            margin: 5px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .invoice-close-btn {
+            border: 0;
+            background: #f3f4f6;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .invoice-close-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .invoice-modal-body {
+            padding: 24px;
+        }
+
+        .invoice-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .invoice-detail-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .invoice-detail-label {
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .invoice-detail-value {
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .invoice-items-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        .invoice-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .invoice-items-table th,
+        .invoice-items-table td {
+            padding: 12px 13px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        .invoice-items-table th {
+            background: #f9fafb;
+            font-size: 13px;
+        }
+
+        .invoice-items-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .invoice-summary {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .invoice-summary-box {
+            width: min(320px, 100%);
+        }
+
+        .invoice-summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 7px 0;
+            color: #4b5563;
+        }
+
+        .invoice-summary-row.total {
+            margin-top: 7px;
+            padding-top: 12px;
+            border-top: 1px solid #d1d5db;
+            color: #111827;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .invoice-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 18px 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .admin-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .invoice-controls {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .invoice-controls button {
+                grid-column: 1 / -1;
+            }
+
+            .invoice-detail-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .admin-page {
+                padding: 25px 14px 50px;
+            }
+
+            .admin-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .stats-grid,
+            .admin-links {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-controls button {
+                grid-column: auto;
+            }
+
+            .invoice-section-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .invoice-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .invoice-modal {
+                padding: 10px;
+            }
+
+            .invoice-modal-card {
+                margin: 15px auto;
+            }
+
+            .invoice-modal-header,
+            .invoice-modal-body,
+            .invoice-modal-footer {
+                padding: 18px;
+            }
+        }
+            /* ADMIN PAYMENTS - UI POLISH */
+        #admin-payments { overflow: hidden; }
+        #admin-payments table { width: 100%; min-width: 1050px; border-collapse: separate; border-spacing: 0; }
+        #admin-payments th { white-space: nowrap; }
+        #admin-payments td { vertical-align: middle; white-space: nowrap; }
+        #admin-payments td:first-child { font-weight: 600; }
+        #admin-payments td:nth-child(3) { white-space: normal; min-width: 190px; max-width: 260px; }
+        #admin-payments td:nth-child(5) { font-weight: 600; text-align: right; }
+        #admin-payments td:last-child { text-align: center; }
+        #admin-payments .admin-btn { white-space: nowrap; }
+        .admin-payment-modal-card { width: min(920px, calc(100vw - 32px)); max-height: calc(100vh - 40px); overflow: hidden; }
+        .admin-payment-modal-card .invoice-modal-body { overflow-y: auto; max-height: calc(100vh - 180px); }
+        .admin-payment-modal-card .invoice-detail-card { min-width: 0; }
+        .admin-payment-modal-card .invoice-detail-value { overflow-wrap: anywhere; word-break: break-word; }
+        .admin-payment-amount, .admin-payment-grand-total { font-weight: 700; }
+        .admin-payment-invoice-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid #e5e7eb; }
+        .admin-payment-invoice-section h3 { margin: 0 0 16px; }
+        .admin-payment-no-invoice { padding: 18px; border: 1px solid #e5e7eb; border-radius: 10px; opacity: .7; }
+        @media (max-width: 700px) { #admin-payments table { min-width: 900px; } .admin-payment-modal-card { width: calc(100vw - 20px); max-height: calc(100vh - 20px); } .admin-payment-modal-card .invoice-modal-body { max-height: calc(100vh - 150px); } }
+</style>
+</head>
+
+<body>
+
+<main class="admin-page">
+
+    <header class="admin-header">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p>Open Shelf management overview.</p>
+        </div>
+
+        <button
+            type="button"
+            class="btn btn-outline"
+            id="logoutBtn"
+        >
+            Log out
+        </button>
+    </header>
+
+    <div
+        id="adminError"
+        class="admin-error"
+    ></div>
+
+    <div
+        id="adminSuccess"
+        class="admin-success"
+    ></div>
+
+    <!-- ======================================================
+         DASHBOARD STATISTICS
+    ======================================================= -->
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-label">Books</div>
+            <div
+                class="stat-value"
+                id="booksCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Members</div>
+            <div
+                class="stat-value"
+                id="membersCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Memberships</div>
+            <div
+                class="stat-value"
+                id="membershipsCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Active Memberships</div>
+            <div
+                class="stat-value"
+                id="activeMembershipsCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Pending Memberships</div>
+            <div
+                class="stat-value"
+                id="pendingMembershipsCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Active Rentals</div>
+            <div
+                class="stat-value"
+                id="activeRentalsCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Sales Invoices</div>
+            <div
+                class="stat-value"
+                id="salesInvoicesCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Paid Payments</div>
+            <div
+                class="stat-value"
+                id="paidPaymentsCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Pending Applications</div>
+            <div
+                class="stat-value"
+                id="pendingApplicationsCount"
+            >
+                <span class="loading">—</span>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ======================================================
+         MANAGEMENT
+    ======================================================= -->
+
+    <section class="admin-section">
+
+        <h2>Management</h2>
+
+        <div class="admin-links">
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-books.html"
+            >
+                <div class="admin-link-title">
+                    Books &amp; Inventory
+                </div>
+
+                <div class="admin-link-description">
+                    Manage books, copies and inventory.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-inventory.html"
+            >
+                <div class="admin-link-title">
+                    Inventory
+                </div>
+
+                <div class="admin-link-description">
+                    Stock levels and inventory transactions
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-members.html"
+            >
+                <div class="admin-link-title">
+                    Members
+                </div>
+
+                <div class="admin-link-description">
+                    Manage Open Shelf members.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-memberships.html"
+            >
+                <div class="admin-link-title">
+                    Memberships
+                </div>
+
+                <div class="admin-link-description">
+                    View and manage memberships.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-rentals.html"
+            >
+                <div class="admin-link-title">
+                    Rentals
+                </div>
+
+                <div class="admin-link-description">
+                    Manage book rentals and returns.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-sales-invoices.html"
+                id="salesInvoicesNav"
+            >
+                <div class="admin-link-title">
+                    Sales Invoices
+                </div>
+
+                <div class="admin-link-description">
+                    View bookstore sales and invoices.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-book-sales.html"
+            >
+                <div class="admin-link-title">
+                    Book Sales
+                </div>
+
+                <div class="admin-link-description">
+                    View purchased books, customers, quantities and payments.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-payments.html"
+            >
+                <div class="admin-link-title">
+                    Payments
+                </div>
+
+                <div class="admin-link-description">
+                    View payment records.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-customer-applications.html"
+            >
+                <div class="admin-link-title">
+                    Customer Applications
+                </div>
+
+                <div class="admin-link-description">
+                    Review membership and Solo Working applications.
+                </div>
+            </a>
+
+            <a
+                class="admin-link"
+                href="/assets/open_shelf/frontend/pages/admin-bulk.html"
+            >
+                <div class="admin-link-title">
+                    Bulk Data
+                </div>
+
+                <div class="admin-link-description">
+                    Import and export Open Shelf master data using CSV files.
+                </div>
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+<!-- ==========================================================
+     SALES INVOICE DETAIL MODAL
+=========================================================== -->
+
+<div
+    class="invoice-modal"
+    id="invoiceModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="invoiceModalTitle"
+>
+
+    <div class="invoice-modal-card">
+
+        <div class="invoice-modal-header">
+
+            <div>
+                <h2
+                    class="invoice-modal-title"
+                    id="invoiceModalTitle"
+                >
+                    Sales Invoice
+                </h2>
+
+                <p
+                    class="invoice-modal-subtitle"
+                    id="invoiceModalSubtitle"
+                >
+                    Invoice details
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="invoice-close-btn"
+                id="invoiceModalClose"
+                aria-label="Close"
+            >
+                &times;
+            </button>
+
+        </div>
+
+        <div class="invoice-modal-body">
+
+            <div
+                id="invoiceModalLoading"
+                class="invoice-loading"
+            >
+                Loading invoice...
+            </div>
+
+            <div
+                id="invoiceModalContent"
+                style="display:none;"
+            >
+
+                <div class="invoice-detail-grid">
+
+                    <div class="invoice-detail-card">
+                        <div class="invoice-detail-label">
+                            Invoice
+                        </div>
+
+                        <div
+                            class="invoice-detail-value"
+                            id="detailInvoice"
+                        >
+                        </div>
+                    </div>
+
+                    <div class="invoice-detail-card">
+                        <div class="invoice-detail-label">
+                            Customer / Member
+                        </div>
+
+                        <div
+                            class="invoice-detail-value"
+                            id="detailCustomer"
+                        >
+                        </div>
+                    </div>
+
+                    <div class="invoice-detail-card">
+                        <div class="invoice-detail-label">
+                            Invoice Date
+                        </div>
+
+                        <div
+                            class="invoice-detail-value"
+                            id="detailDate"
+                        >
+                        </div>
+                    </div>
+
+                    <div class="invoice-detail-card">
+                        <div class="invoice-detail-label">
+                            Payment Status
+                        </div>
+
+                        <div
+                            class="invoice-detail-value"
+                            id="detailPaymentStatus"
+                        >
+                        </div>
+                    </div>
+
+                    <div class="invoice-detail-card">
+                        <div class="invoice-detail-label">
+                            Document Status
+                        </div>
+
+                        <div
+                            class="invoice-detail-value"
+                            id="detailDocStatus"
+                        >
+                        </div>
+                    </div>
+
+                    <div class="invoice-detail-card">
+                        <div class="invoice-detail-label">
+                            Member ID
+                        </div>
+
+                        <div
+                            class="invoice-detail-value"
+                            id="detailMember"
+                        >
+                        </div>
+                    </div>
+
+                </div>
+
+                <h3>Invoice Items</h3>
+
+                <div class="invoice-items-wrapper">
+
+                    <table class="invoice-items-table">
+
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Description</th>
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="invoiceItemsBody"></tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="invoice-summary">
+
+                    <div class="invoice-summary-box">
+
+                        <div class="invoice-summary-row">
+                            <span>Subtotal</span>
+                            <strong id="detailSubtotal">₹0.00</strong>
+                        </div>
+
+                        <div class="invoice-summary-row">
+                            <span>Discount</span>
+                            <strong id="detailDiscount">₹0.00</strong>
+                        </div>
+
+                        <div class="invoice-summary-row">
+                            <span>Tax</span>
+                            <strong id="detailTax">₹0.00</strong>
+                        </div>
+
+                        <div class="invoice-summary-row total">
+                            <span>Grand Total</span>
+                            <strong id="detailGrandTotal">₹0.00</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="invoice-modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-outline"
+                id="invoiceModalCloseFooter"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    const API = "/api/method/open_shelf.api.api";
+
+    const adminError = document.getElementById("adminError");
+    const adminSuccess = document.getElementById("adminSuccess");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    function showError(message) {
+        if (adminError) {
+            if (adminSuccess) {
+                adminSuccess.style.display = "none";
+            }
+
+            adminError.textContent = message || "Unable to load the admin dashboard.";
+            adminError.style.display = "block";
+        }
+    }
+
+    function setValue(id, value) {
+        const element = document.getElementById(id);
+
+        if (!element) {
+            return;
+        }
+
+        element.textContent = Number(value || 0).toLocaleString("en-IN");
+    }
+
+    async function getCurrentUser() {
+        return await OpenShelf.apiGet(
+            "/api/method/frappe.auth.get_logged_user"
+        );
+    }
+
+    async function loadDashboard() {
+        try {
+            const currentUser = await getCurrentUser();
+
+            if (!currentUser || currentUser === "Guest") {
+                const redirectTo =
+                    window.location.pathname + window.location.search;
+
+                window.location.href =
+                    "/login?redirect-to=" +
+                    encodeURIComponent(redirectTo);
+
+                return false;
+            }
+
+            const dashboard = await OpenShelf.apiGet(
+                `${API}.get_admin_dashboard`
+            );
+
+            setValue("booksCount", dashboard.books);
+            setValue("membersCount", dashboard.members);
+            setValue("membershipsCount", dashboard.memberships);
+            setValue(
+                "activeMembershipsCount",
+                dashboard.active_memberships
+            );
+            setValue(
+                "pendingMembershipsCount",
+                dashboard.pending_memberships
+            );
+            setValue("activeRentalsCount", dashboard.active_rentals);
+            setValue("salesInvoicesCount", dashboard.sales_invoices);
+            setValue("paidPaymentsCount", dashboard.paid_payments);
+
+            try {
+                const applicationStats =
+                    await OpenShelf.apiGet(
+                        "/api/method/open_shelf.api.admin_customer_application.get_admin_application_stats"
+                    );
+
+                setValue(
+                    "pendingApplicationsCount",
+                    applicationStats.pending_review
+                );
+
+            } catch (applicationError) {
+                console.error(
+                    "Customer application stats error:",
+                    applicationError
+                );
+
+                setValue(
+                    "pendingApplicationsCount",
+                    0
+                );
+            }
+
+            return true;
+
+        } catch (error) {
+            console.error("Admin dashboard error:", error);
+
+            showError(
+                error.message ||
+                "Unable to load the admin dashboard."
+            );
+
+            return false;
+        }
+    }
+
+    async function logout() {
+        try {
+            await fetch(
+                "/api/method/frappe.auth.logout",
+                {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+        } catch (error) {
+            console.error("Logout error:", error);
+        } finally {
+            window.location.href = "/login";
+        }
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
+
+    async function initializeAdmin() {
+        await loadDashboard();
+    }
+
+    initializeAdmin();
+
+})();
+</script>
+
+</body>
+</html>

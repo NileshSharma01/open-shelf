@@ -1,0 +1,158 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-08-30 13:06:16.258410",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "book_title",
+  "isbn",
+  "author",
+  "publisher",
+  "category",
+  "description",
+  "publication_year",
+  "language",
+  "edition",
+  "image",
+  "total_copies",
+  "available_copies",
+  "selling_price",
+  "purchase_price",
+  "rental_allowed",
+  "distributor",
+  "last_transaction"
+ ],
+ "fields": [
+  {
+   "fieldname": "book_title",
+   "label": "Book Title",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "isbn",
+   "label": "ISBN",
+   "fieldtype": "Data",
+   "unique": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "author",
+   "label": "Author",
+   "fieldtype": "Link",
+   "options": "Author",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "publisher",
+   "label": "Publisher",
+   "fieldtype": "Link",
+   "options": "Publisher"
+  },
+  {
+   "fieldname": "category",
+   "label": "Category",
+   "fieldtype": "Link",
+   "options": "Category",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "description",
+   "label": "Description",
+   "fieldtype": "Text Editor"
+  },
+  {
+   "fieldname": "publication_year",
+   "label": "Publication Year",
+   "fieldtype": "Int"
+  },
+  {
+   "fieldname": "language",
+   "label": "Language",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "edition",
+   "label": "Edition",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "image",
+   "label": "Image",
+   "fieldtype": "Attach Image"
+  },
+  {
+   "fieldname": "total_copies",
+   "label": "Total Copies",
+   "fieldtype": "Int",
+   "default": 1
+  },
+  {
+   "fieldname": "available_copies",
+   "label": "Available Copies",
+   "fieldtype": "Int",
+   "default": 1
+  },
+  {
+   "fieldname": "selling_price",
+   "label": "Selling Price",
+   "fieldtype": "Currency"
+  },
+  {
+   "fieldname": "purchase_price",
+   "label": "Purchase Price",
+   "fieldtype": "Currency",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "rental_allowed",
+   "label": "Rental Allowed",
+   "fieldtype": "Check",
+   "default": 1
+  },
+  {
+   "fieldname": "distributor",
+   "label": "Distributor",
+   "fieldtype": "Link",
+   "options": "Distributor",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "last_transaction",
+   "label": "Last Transaction",
+   "fieldtype": "Link",
+   "options": "Inventory Transaction",
+   "permlevel": 1,
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": null,
+ "modified_by": "Administrator",
+ "module": "Open Shelf",
+ "name": "Book",
+ "owner": "store@openshelfreadingfoundation.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

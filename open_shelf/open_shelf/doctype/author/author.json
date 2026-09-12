@@ -1,0 +1,45 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": null,
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "author_name",
+  "biography"
+ ],
+ "fields": [
+  {
+   "fieldname": "author_name",
+   "label": "Author Name",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "biography",
+   "label": "Biography",
+   "fieldtype": "Small Text"
+  }
+ ],
+ "links": [],
+ "module": "Open Shelf",
+ "name": "Author",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1,
+   "export": 1,
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

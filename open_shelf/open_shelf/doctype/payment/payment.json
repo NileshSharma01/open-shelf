@@ -1,0 +1,116 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2026-08-30 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "sales_invoice",
+    "membership",
+    "member",
+    "payment_date",
+    "amount",
+    "payment_method",
+    "payment_status",
+    "reference",
+    "razorpay_order_id",
+    "razorpay_payment_id",
+    "razorpay_signature"
+  ],
+  "fields": [
+    {
+      "fieldname": "sales_invoice",
+      "fieldtype": "Link",
+      "label": "Sales Invoice",
+      "options": "Sales Invoice"
+    },
+    {
+      "fieldname": "membership",
+      "fieldtype": "Link",
+      "label": "Membership",
+      "options": "Membership"
+    },
+    {
+      "fieldname": "member",
+      "fieldtype": "Link",
+      "label": "Member",
+      "options": "Member"
+    },
+    {
+      "fieldname": "payment_date",
+      "fieldtype": "Date",
+      "label": "Payment Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "amount",
+      "fieldtype": "Currency",
+      "label": "Amount",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_method",
+      "fieldtype": "Select",
+      "label": "Payment Method",
+      "options": "Cash\nUPI\nCard\nBank Transfer\nRazorpay\nOther",
+      "reqd": 1
+    },
+    {
+      "fieldname": "payment_status",
+      "fieldtype": "Select",
+      "label": "Payment Status",
+      "options": "Initiated\nPaid\nFailed\nCancelled",
+      "default": "Initiated",
+      "reqd": 1
+    },
+    {
+      "fieldname": "reference",
+      "fieldtype": "Data",
+      "label": "Reference"
+    },
+    {
+      "fieldname": "razorpay_order_id",
+      "fieldtype": "Data",
+      "label": "Razorpay Order ID",
+      "read_only": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "razorpay_payment_id",
+      "fieldtype": "Data",
+      "label": "Razorpay Payment ID",
+      "read_only": 1
+    },
+    {
+      "fieldname": "razorpay_signature",
+      "fieldtype": "Data",
+      "label": "Razorpay Signature",
+      "read_only": 1
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2026-09-02 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Open Shelf",
+  "name": "Payment",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

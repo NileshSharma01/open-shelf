@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Registration | Open Shelf</title>
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/frontend/css/style.css"
+    >
+
+    <style>
+        .registration-page {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .registration-header {
+            margin-bottom: 30px;
+        }
+
+        .registration-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .registration-header p {
+            color: #666;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 24px;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .form-section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .required {
+            color: #c62828;
+        }
+
+        .plan-description {
+            margin-top: 12px;
+            padding: 14px;
+            background: #f7f7f7;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .activity-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .consent-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .consent-row input {
+            margin-top: 4px;
+        }
+
+        .submit-section {
+            text-align: center;
+        }
+
+        .submit-button {
+            padding: 13px 30px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 7px;
+            display: none;
+        }
+
+        .message.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .message.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid,
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .registration-page {
+                margin: 20px auto;
+                padding: 12px;
+            }
+
+            .form-section {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="registration-page">
+
+    <div class="registration-header">
+        <h1>Customer Registration</h1>
+        <p>
+            Apply for an Open Shelf Become a Member or Solo Working plan.
+        </p>
+    </div>
+
+    <form id="customer-registration-form">
+
+        <!-- SERVICE / PLAN -->
+        <div class="form-section">
+
+            <h2>Subscription</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>
+                        Service <span class="required">*</span>
+                    </label>
+
+                    <select id="application_type" required>
+                        <option value="">Select service</option>
+                        <option value="Membership">Become a Member</option>
+                        <option value="Solo Working">Solo Working</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="membership-plan-group">
+                    <label>
+                        Become a Member Plan <span class="required">*</span>
+                    </label>
+
+                    <select id="membership_plan">
+                        <option value="">Select Become a Member plan</option>
+                    </select>
+                </div>
+
+                <div
+                    class="form-group"
+                    id="space-plan-group"
+                    style="display:none;"
+                >
+                    <label>
+                        Solo Working Plan <span class="required">*</span>
+                    </label>
+
+                    <select id="space_plan">
+                        <option value="">Select Solo Working plan</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div
+                id="plan-description"
+                class="plan-description"
+            ></div>
+
+        </div>
+
+
+        <!-- PERSONAL INFORMATION -->
+        <div class="form-section">
+
+            <h2>Personal Information</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Title</label>
+
+                    <select id="title">
+                        <option value="">Select</option>
+                        <option value="Ms.">Ms.</option>
+                        <option value="Mrs.">Mrs.</option>
+                        <option value="Mr.">Mr.</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>First Name <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="first_name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="last_name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Phone <span class="required">*</span></label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input
+                        type="email"
+                        id="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input
+                        type="date"
+                        id="date_of_birth"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+
+                    <select id="gender">
+                        <option value="">Select</option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer not to say">
+                            Prefer not to say
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Occupation</label>
+                    <input
+                        type="text"
+                        id="occupation"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Organization / School</label>
+                    <input
+                        type="text"
+                        id="organization_school"
+                    >
+                </div>
+
+                <div class="form-group full-width">
+                    <label>
+                        Address <span class="required">*</span>
+                    </label>
+
+                    <textarea
+                        id="address"
+                        required
+                    ></textarea>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- HOW HEARD -->
+        <div class="form-section">
+
+            <h2>How did you hear about us?</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>Source</label>
+
+                    <select id="how_heard_about_us">
+                        <option value="">Select</option>
+                        <option value="Recommendation">
+                            Recommendation
+                        </option>
+                        <option value="Advertisement">
+                            Advertisement
+                        </option>
+                        <option value="Social Media">
+                            Social Media
+                        </option>
+                        <option value="Search Engine">
+                            Search Engine
+                        </option>
+                        <option value="Other">
+                            Other
+                        </option>
+                    </select>
+
+                </div>
+
+                <div
+                    class="form-group"
+                    id="how-heard-other-group"
+                    style="display:none;"
+                >
+
+                    <label>Please specify</label>
+
+                    <input
+                        type="text"
+                        id="how_heard_other"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACTIVITIES -->
+        <div class="form-section">
+
+            <h2>Activities You Are Interested In</h2>
+
+            <div class="activities-grid">
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Kids reading/activities"
+                    >
+                    Kids reading/activities
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Book launches"
+                    >
+                    Book launches
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Historian sessions"
+                    >
+                    Historian sessions
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Art & Artists"
+                    >
+                    Art & Artists
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Career Counselling for young adults"
+                    >
+                    Career Counselling for young adults
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Yoga & Meditation"
+                    >
+                    Yoga & Meditation
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Mindfulness"
+                    >
+                    Mindfulness
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Food & Culinary related"
+                    >
+                    Food & Culinary related
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Community building"
+                    >
+                    Community building
+                </label>
+
+                <label class="activity-option">
+                    <input
+                        type="checkbox"
+                        value="Others"
+                    >
+                    Others
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- CONSENT -->
+        <div class="form-section">
+
+            <h2>Communication Consent</h2>
+
+            <label class="consent-row">
+
+                <input
+                    type="checkbox"
+                    id="whatsapp_consent"
+                    required
+                >
+
+                <span>
+                    I agree to be part of the Open Shelf WhatsApp
+                    community and group.
+                </span>
+
+            </label>
+
+            <label class="consent-row">
+
+                <input
+                    type="checkbox"
+                    id="email_consent"
+                    required
+                >
+
+                <span>
+                    I agree to receive Open Shelf group emails and
+                    communication.
+                </span>
+
+            </label>
+
+        </div>
+
+
+        <!-- FINAL -->
+        <div class="form-section">
+
+            <h2>Final Details</h2>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Date <span class="required">*</span></label>
+
+                    <input
+                        type="date"
+                        id="application_date"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Signature</label>
+
+                    <input
+                        type="file"
+                        id="signature"
+                        accept="image/*"
+                    >
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUBMIT -->
+        <div class="submit-section">
+
+            <button
+                type="submit"
+                id="submit-button"
+                class="submit-button"
+            >
+                Submit Application
+            </button>
+
+            <div
+                id="form-message"
+                class="message"
+            ></div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<script src="/assets/open_shelf/frontend/js/customer-registration.js"></script>
+
+</body>
+</html>

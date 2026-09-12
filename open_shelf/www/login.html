@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Open Shelf</title>
+</head>
+<body>
+
+<script>
+(function () {
+
+    "use strict";
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const redirect =
+        params.get("redirect") ||
+        params.get("redirect-to") ||
+        "";
+
+    let target =
+        "/assets/open_shelf/frontend/pages/login.html";
+
+    if (
+        redirect &&
+        redirect !== "/login" &&
+        redirect !== "/login/"
+    ) {
+        target +=
+            "?redirect=" +
+            encodeURIComponent(redirect);
+    }
+
+    window.location.replace(target);
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Customer Applications | Open Shelf</title>
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/frontend/css/style.css"
+    >
+
+    <style>
+        body {
+            margin: 0;
+            background: #f7f7f5;
+        }
+
+        .admin-page {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 35px 20px 70px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 6px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .notice {
+            display: none;
+            padding: 13px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+
+        .notice.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .notice.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 27px;
+            font-weight: 700;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) 190px 190px auto;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .filter-input,
+        .filter-select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            background: white;
+            font: inherit;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: #6b7280;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1050px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f9fafb;
+            font-size: 12px;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .applicant {
+            font-weight: 700;
+        }
+
+        .subtext {
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .status {
+            display: inline-flex;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-pending-review {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved,
+        .status-paid,
+        .status-activated {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-payment-pending {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-rejected,
+        .status-cancelled,
+        .status-payment-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-draft {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .status-submitted {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .view-btn {
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 8px;
+            padding: 7px 11px;
+            cursor: pointer;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .view-btn:hover {
+            background: #f9fafb;
+        }
+
+        .empty,
+        .loading {
+            padding: 35px 20px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .count {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        /* MODAL */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(17, 24, 39, 0.55);
+            padding: 15px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .modal.open {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .modal-card {
+            width: min(950px, 100%);
+            margin: 25px auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 22px 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-header h2 {
+            margin: 0 0 5px;
+        }
+
+        .modal-header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .close-btn {
+            border: 0;
+            background: #f3f4f6;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-section h3 {
+            margin: 0 0 13px;
+            font-size: 17px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .detail {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 13px;
+            min-width: 0;
+        }
+
+        .detail-label {
+            color: #6b7280;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .activity {
+            background: #f3f4f6;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .consent-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .consent {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .consent.yes {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .consent.no {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .review-notes {
+            width: 100%;
+            min-height: 100px;
+            box-sizing: border-box;
+            resize: vertical;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            padding: 11px;
+            font: inherit;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 600;
+        }
+
+        .approve-btn {
+            background: #166534;
+            color: white;
+        }
+
+        .reject-btn {
+            background: #991b1b;
+            color: white;
+        }
+
+        .secondary-btn {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .action-btn:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .signature-image {
+            max-width: 300px;
+            max-height: 130px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        @media (max-width: 1000px) {
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .filters {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .filters button {
+                grid-column: 1 / -1;
+            }
+
+            .detail-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .admin-page {
+                padding: 25px 14px 50px;
+            }
+
+            .page-header {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .filters button {
+                grid-column: auto;
+            }
+
+            .detail-grid,
+            .consent-list {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 8px;
+            }
+
+            .modal-card {
+                margin: 10px auto;
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 17px;
+            }
+
+            .modal-footer {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .modal-actions {
+                justify-content: stretch;
+            }
+
+            .modal-actions button {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="admin-page">
+
+    <header class="page-header">
+        <div>
+            <h1>Customer Applications</h1>
+            <p>Review membership and Solo Working applications.</p>
+        </div>
+
+        <div class="header-actions">
+            <a
+                href="/assets/open_shelf/frontend/pages/admin.html"
+                class="btn btn-outline"
+            >
+                Dashboard
+            </a>
+
+            <button
+                type="button"
+                class="btn btn-outline"
+                id="logoutBtn"
+            >
+                Log out
+            </button>
+        </div>
+    </header>
+
+    <div id="errorMessage" class="notice error"></div>
+    <div id="successMessage" class="notice success"></div>
+
+    <section class="stats">
+
+        <div class="stat">
+            <div class="stat-label">Total Applications</div>
+            <div class="stat-value" id="statTotal">—</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Pending Review</div>
+            <div class="stat-value" id="statPending">—</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Approved</div>
+            <div class="stat-value" id="statApproved">—</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Payment Pending</div>
+            <div class="stat-value" id="statPaymentPending">—</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Activated</div>
+            <div class="stat-value" id="statActivated">—</div>
+        </div>
+
+    </section>
+
+    <section class="panel">
+
+        <div class="filters">
+
+            <input
+                type="search"
+                id="searchInput"
+                class="filter-input"
+                placeholder="Search name, email, phone or application ID"
+            >
+
+            <select id="statusFilter" class="filter-select">
+                <option value="All">All statuses</option>
+                <option value="Pending Review">Pending Review</option>
+                <option value="Approved">Approved</option>
+                <option value="Payment Pending">Payment Pending</option>
+                <option value="Paid">Paid</option>
+                <option value="Activated">Activated</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Payment Failed">Payment Failed</option>
+                <option value="Draft">Draft</option>
+            </select>
+
+            <select id="typeFilter" class="filter-select">
+                <option value="All">All application types</option>
+                <option value="Membership">Membership</option>
+                <option value="Solo Working">Solo Working</option>
+            </select>
+
+            <button
+                type="button"
+                class="btn btn-outline"
+                id="refreshBtn"
+            >
+                Refresh
+            </button>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Application</th>
+                        <th>Applicant</th>
+                        <th>Type</th>
+                        <th>Plan</th>
+                        <th>Price</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="applicationsBody">
+                    <tr>
+                        <td colspan="8" class="loading">
+                            Loading applications...
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="count" id="applicationCount"></div>
+
+    </section>
+
+</main>
+
+<div
+    class="modal"
+    id="applicationModal"
+    role="dialog"
+    aria-modal="true"
+>
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <div>
+                <h2 id="modalApplicantName">
+                    Customer Application
+                </h2>
+
+                <p id="modalApplicationId"></p>
+            </div>
+
+            <button
+                type="button"
+                class="close-btn"
+                id="closeModalBtn"
+                aria-label="Close"
+            >
+                &times;
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div id="modalLoading" class="loading">
+                Loading application...
+            </div>
+
+            <div id="modalContent" style="display:none;">
+
+                <section class="detail-section">
+
+                    <h3>Application</h3>
+
+                    <div class="detail-grid">
+
+                        <div class="detail">
+                            <div class="detail-label">Application Type</div>
+                            <div class="detail-value" id="detailType"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value" id="detailStatus"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Application Date</div>
+                            <div class="detail-value" id="detailApplicationDate"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Plan</div>
+                            <div class="detail-value" id="detailPlan"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Plan Price</div>
+                            <div class="detail-value" id="detailPlanPrice"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Member</div>
+                            <div class="detail-value" id="detailMember"></div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="detail-section">
+
+                    <h3>Personal Information</h3>
+
+                    <div class="detail-grid">
+
+                        <div class="detail">
+                            <div class="detail-label">Name</div>
+                            <div class="detail-value" id="detailName"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value" id="detailPhone"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value" id="detailEmail"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Date of Birth</div>
+                            <div class="detail-value" id="detailDob"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Gender</div>
+                            <div class="detail-value" id="detailGender"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Occupation</div>
+                            <div class="detail-value" id="detailOccupation"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Organization / School</div>
+                            <div class="detail-value" id="detailOrganization"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Address</div>
+                            <div class="detail-value" id="detailAddress"></div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="detail-section">
+
+                    <h3>How did they hear about us?</h3>
+
+                    <div class="detail-grid">
+
+                        <div class="detail">
+                            <div class="detail-label">Source</div>
+                            <div class="detail-value" id="detailSource"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Other</div>
+                            <div class="detail-value" id="detailSourceOther"></div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="detail-section">
+
+                    <h3>Activities</h3>
+
+                    <div
+                        class="activity-list"
+                        id="detailActivities"
+                    ></div>
+
+                </section>
+
+                <section class="detail-section">
+
+                    <h3>Consent</h3>
+
+                    <div class="consent-list">
+
+                        <div
+                            class="consent"
+                            id="whatsappConsent"
+                        >
+                            WhatsApp community/group
+                        </div>
+
+                        <div
+                            class="consent"
+                            id="emailConsent"
+                        >
+                            Group email
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="detail-section">
+
+                    <h3>Review</h3>
+
+                    <textarea
+                        id="reviewNotes"
+                        class="review-notes"
+                        placeholder="Add review notes when rejecting..."
+                    ></textarea>
+
+                </section>
+
+                <section class="detail-section">
+
+                    <h3>System Records</h3>
+
+                    <div class="detail-grid">
+
+                        <div class="detail">
+                            <div class="detail-label">Membership</div>
+                            <div class="detail-value" id="detailMembership"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Space Access</div>
+                            <div class="detail-value" id="detailSpaceAccess"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Sales Invoice</div>
+                            <div class="detail-value" id="detailInvoice"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Payment</div>
+                            <div class="detail-value" id="detailPayment"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Reviewed By</div>
+                            <div class="detail-value" id="detailReviewedBy"></div>
+                        </div>
+
+                        <div class="detail">
+                            <div class="detail-label">Review Notes</div>
+                            <div class="detail-value" id="detailExistingNotes"></div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section
+                    class="detail-section"
+                    id="signatureSection"
+                    style="display:none;"
+                >
+                    <h3>Signature</h3>
+
+                    <img
+                        id="signatureImage"
+                        class="signature-image"
+                        alt="Customer signature"
+                    >
+                </section>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="action-btn secondary-btn"
+                id="closeModalFooter"
+            >
+                Close
+            </button>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="action-btn reject-btn"
+                    id="rejectBtn"
+                >
+                    Reject
+                </button>
+
+                <button
+                    type="button"
+                    class="action-btn approve-btn"
+                    id="approveBtn"
+                >
+                    Approve
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    const API =
+        "/api/method/open_shelf.api.admin_customer_application";
+
+    const body = document.getElementById("applicationsBody");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const typeFilter = document.getElementById("typeFilter");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    const modal = document.getElementById("applicationModal");
+    const modalLoading = document.getElementById("modalLoading");
+    const modalContent = document.getElementById("modalContent");
+
+    let currentApplication = null;
+
+    function showError(message) {
+        const element = document.getElementById("errorMessage");
+
+        element.textContent =
+            message || "Something went wrong.";
+
+        element.style.display = "block";
+
+        document.getElementById("successMessage").style.display =
+            "none";
+    }
+
+    function showSuccess(message) {
+        const element = document.getElementById("successMessage");
+
+        element.textContent =
+            message || "Operation completed successfully.";
+
+        element.style.display = "block";
+
+        document.getElementById("errorMessage").style.display =
+            "none";
+
+        setTimeout(function () {
+            element.style.display = "none";
+        }, 4000);
+    }
+
+    function clearNotices() {
+        document.getElementById("errorMessage").style.display = "none";
+        document.getElementById("successMessage").style.display = "none";
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function formatMoney(value) {
+        const amount = Number(value || 0);
+
+        return "₹" + amount.toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return value;
+        }
+
+        return date.toLocaleDateString("en-IN");
+    }
+
+    function statusClass(status) {
+        return "status-" +
+            String(status || "")
+                .toLowerCase()
+                .replace(/\s+/g, "-");
+    }
+
+    function setStat(id, value) {
+        document.getElementById(id).textContent =
+            Number(value || 0).toLocaleString("en-IN");
+    }
+
+    async function getCurrentUser() {
+        return await OpenShelf.apiGet(
+            "/api/method/frappe.auth.get_logged_user"
+        );
+    }
+
+    async function ensureAdmin() {
+        const user = await getCurrentUser();
+
+        if (!user || user === "Guest") {
+            const redirectTo =
+                window.location.pathname +
+                window.location.search;
+
+            window.location.href =
+                "/login?redirect-to=" +
+                encodeURIComponent(redirectTo);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    async function loadStats() {
+        const stats = await OpenShelf.apiGet(
+            `${API}.get_admin_application_stats`
+        );
+
+        setStat("statTotal", stats.total);
+        setStat("statPending", stats.pending_review);
+        setStat("statApproved", stats.approved);
+        setStat("statPaymentPending", stats.payment_pending);
+        setStat("statActivated", stats.activated);
+    }
+
+    async function loadApplications() {
+        body.innerHTML =
+            '<tr><td colspan="8" class="loading">Loading applications...</td></tr>';
+
+        try {
+            const params = new URLSearchParams();
+
+            params.set("limit", "200");
+
+            if (searchInput.value.trim()) {
+                params.set("search", searchInput.value.trim());
+            }
+
+            if (statusFilter.value !== "All") {
+                params.set("status", statusFilter.value);
+            }
+
+            if (typeFilter.value !== "All") {
+                params.set(
+                    "application_type",
+                    typeFilter.value
+                );
+            }
+
+            const result = await OpenShelf.apiGet(
+                `${API}.get_admin_applications?${params.toString()}`
+            );
+
+            renderApplications(result.applications || []);
+
+            document.getElementById("applicationCount").textContent =
+                `${Number(result.total || 0).toLocaleString("en-IN")} application(s)`;
+        } catch (error) {
+            console.error(error);
+
+            body.innerHTML =
+                '<tr><td colspan="8" class="empty">Unable to load applications.</td></tr>';
+
+            showError(
+                error.message ||
+                "Unable to load Customer Applications."
+            );
+        }
+    }
+
+    function renderApplications(applications) {
+        if (!applications.length) {
+            body.innerHTML =
+                '<tr><td colspan="8" class="empty">No applications found.</td></tr>';
+
+            return;
+        }
+
+        body.innerHTML = applications.map(function (application) {
+
+            return `
+                <tr>
+                    <td>
+                        <div class="applicant">
+                            ${escapeHtml(application.name)}
+                        </div>
+                        <div class="subtext">
+                            ${escapeHtml(application.application_type || "")}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="applicant">
+                            ${escapeHtml(application.full_name || "—")}
+                        </div>
+                        <div class="subtext">
+                            ${escapeHtml(application.email || "")}
+                        </div>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(application.application_type || "—")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(application.plan_name || "—")}
+                    </td>
+
+                    <td>
+                        ${formatMoney(application.plan_price)}
+                    </td>
+
+                    <td>
+                        ${formatDate(application.submitted_on || application.application_date)}
+                    </td>
+
+                    <td>
+                        <span class="status ${statusClass(application.status)}">
+                            ${escapeHtml(application.status || "—")}
+                        </span>
+                    </td>
+
+                    <td>
+                        <button
+                            type="button"
+                            class="view-btn"
+                            data-name="${escapeHtml(application.name)}"
+                        >
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        body.querySelectorAll(".view-btn").forEach(function (button) {
+            button.addEventListener(
+                "click",
+                function () {
+                    openApplication(button.dataset.name);
+                }
+            );
+        });
+    }
+
+    function setDetail(id, value) {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.textContent =
+                value === null ||
+                value === undefined ||
+                value === ""
+                    ? "—"
+                    : value;
+        }
+    }
+
+    function renderConsent(id, enabled, label) {
+        const element = document.getElementById(id);
+
+        element.className =
+            "consent " + (enabled ? "yes" : "no");
+
+        element.textContent =
+            label + ": " + (enabled ? "Yes" : "No");
+    }
+
+    function renderApplication(application) {
+        currentApplication = application;
+
+        setDetail(
+            "modalApplicantName",
+            application.full_name || "Customer Application"
+        );
+
+        setDetail(
+            "modalApplicationId",
+            application.name
+        );
+
+        setDetail(
+            "detailType",
+            application.application_type
+        );
+
+        setDetail(
+            "detailStatus",
+            application.status
+        );
+
+        setDetail(
+            "detailApplicationDate",
+            formatDate(application.application_date)
+        );
+
+        setDetail(
+            "detailPlan",
+            application.plan_name
+        );
+
+        setDetail(
+            "detailPlanPrice",
+            formatMoney(application.plan_price)
+        );
+
+        setDetail(
+            "detailMember",
+            application.member
+        );
+
+        setDetail(
+            "detailName",
+            application.full_name
+        );
+
+        setDetail(
+            "detailPhone",
+            application.phone
+        );
+
+        setDetail(
+            "detailEmail",
+            application.email
+        );
+
+        setDetail(
+            "detailDob",
+            formatDate(application.date_of_birth)
+        );
+
+        setDetail(
+            "detailGender",
+            application.gender
+        );
+
+        setDetail(
+            "detailOccupation",
+            application.occupation
+        );
+
+        setDetail(
+            "detailOrganization",
+            application.organization_school
+        );
+
+        setDetail(
+            "detailAddress",
+            application.address
+        );
+
+        setDetail(
+            "detailSource",
+            application.how_heard_about_us
+        );
+
+        setDetail(
+            "detailSourceOther",
+            application.how_heard_other
+        );
+
+        const activityContainer =
+            document.getElementById("detailActivities");
+
+        if (application.activities &&
+            application.activities.length) {
+
+            activityContainer.innerHTML =
+                application.activities.map(function (activity) {
+                    return `
+                        <span class="activity">
+                            ${escapeHtml(activity)}
+                        </span>
+                    `;
+                }).join("");
+
+        } else {
+            activityContainer.innerHTML =
+                '<span class="subtext">No activities selected.</span>';
+        }
+
+        renderConsent(
+            "whatsappConsent",
+            Boolean(application.whatsapp_consent),
+            "WhatsApp community/group"
+        );
+
+        renderConsent(
+            "emailConsent",
+            Boolean(application.email_consent),
+            "Group email"
+        );
+
+        setDetail(
+            "detailMembership",
+            application.membership
+        );
+
+        setDetail(
+            "detailSpaceAccess",
+            application.space_access
+        );
+
+        setDetail(
+            "detailInvoice",
+            application.sales_invoice
+        );
+
+        setDetail(
+            "detailPayment",
+            application.payment
+        );
+
+        setDetail(
+            "detailReviewedBy",
+            application.reviewed_by
+        );
+
+        setDetail(
+            "detailExistingNotes",
+            application.review_notes
+        );
+
+        document.getElementById("reviewNotes").value =
+            application.review_notes || "";
+
+        const signatureSection =
+            document.getElementById("signatureSection");
+
+        const signatureImage =
+            document.getElementById("signatureImage");
+
+        if (application.signature) {
+            signatureSection.style.display = "block";
+            signatureImage.src = application.signature;
+        } else {
+            signatureSection.style.display = "none";
+            signatureImage.removeAttribute("src");
+        }
+
+        const approveBtn =
+            document.getElementById("approveBtn");
+
+        const rejectBtn =
+            document.getElementById("rejectBtn");
+
+        const canReview =
+            application.status === "Pending Review";
+
+        approveBtn.disabled = !canReview;
+        rejectBtn.disabled = !canReview;
+    }
+
+    async function openApplication(name) {
+        clearNotices();
+
+        modal.classList.add("open");
+
+        modalLoading.style.display = "block";
+        modalContent.style.display = "none";
+
+        try {
+            const application =
+                await OpenShelf.apiGet(
+                    `${API}.get_admin_application?name=${encodeURIComponent(name)}`
+                );
+
+            renderApplication(application);
+
+            modalLoading.style.display = "none";
+            modalContent.style.display = "block";
+
+        } catch (error) {
+            console.error(error);
+
+            closeModal();
+
+            showError(
+                error.message ||
+                "Unable to load the application."
+            );
+        }
+    }
+
+    function closeModal() {
+        modal.classList.remove("open");
+        currentApplication = null;
+    }
+
+    async function approveApplication() {
+        if (!currentApplication) {
+            return;
+        }
+
+        if (currentApplication.status !== "Pending Review") {
+            return;
+        }
+
+        if (!confirm(
+            "Approve this customer application?"
+        )) {
+            return;
+        }
+
+        const button =
+            document.getElementById("approveBtn");
+
+        button.disabled = true;
+
+        try {
+            await OpenShelf.apiPost(
+                `${API}.approve_application`,
+                {
+                    name: currentApplication.name
+                }
+            );
+
+            closeModal();
+
+            showSuccess(
+                "Application approved successfully."
+            );
+
+            await Promise.all([
+                loadStats(),
+                loadApplications()
+            ]);
+
+        } catch (error) {
+            console.error(error);
+
+            showError(
+                error.message ||
+                "Unable to approve the application."
+            );
+
+            button.disabled = false;
+        }
+    }
+
+    async function rejectApplication() {
+        if (!currentApplication) {
+            return;
+        }
+
+        if (currentApplication.status !== "Pending Review") {
+            return;
+        }
+
+        const notes =
+            document.getElementById("reviewNotes").value.trim();
+
+        if (!confirm(
+            "Reject this customer application?"
+        )) {
+            return;
+        }
+
+        const button =
+            document.getElementById("rejectBtn");
+
+        button.disabled = true;
+
+        try {
+            await OpenShelf.apiPost(
+                `${API}.reject_application`,
+                {
+                    name: currentApplication.name,
+                    notes: notes
+                }
+            );
+
+            closeModal();
+
+            showSuccess(
+                "Application rejected successfully."
+            );
+
+            await Promise.all([
+                loadStats(),
+                loadApplications()
+            ]);
+
+        } catch (error) {
+            console.error(error);
+
+            showError(
+                error.message ||
+                "Unable to reject the application."
+            );
+
+            button.disabled = false;
+        }
+    }
+
+    async function logout() {
+        try {
+            await fetch(
+                "/api/method/frappe.auth.logout",
+                {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+        } finally {
+            window.location.href = "/login";
+        }
+    }
+
+    let searchTimer = null;
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+            clearTimeout(searchTimer);
+
+            searchTimer = setTimeout(
+                loadApplications,
+                350
+            );
+        }
+    );
+
+    statusFilter.addEventListener(
+        "change",
+        loadApplications
+    );
+
+    typeFilter.addEventListener(
+        "change",
+        loadApplications
+    );
+
+    refreshBtn.addEventListener(
+        "click",
+        async function () {
+            clearNotices();
+
+            try {
+                await Promise.all([
+                    loadStats(),
+                    loadApplications()
+                ]);
+
+                showSuccess("Applications refreshed.");
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    );
+
+    document.getElementById("approveBtn")
+        .addEventListener("click", approveApplication);
+
+    document.getElementById("rejectBtn")
+        .addEventListener("click", rejectApplication);
+
+    document.getElementById("closeModalBtn")
+        .addEventListener("click", closeModal);
+
+    document.getElementById("closeModalFooter")
+        .addEventListener("click", closeModal);
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    );
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+            if (
+                event.key === "Escape" &&
+                modal.classList.contains("open")
+            ) {
+                closeModal();
+            }
+        }
+    );
+
+    document.getElementById("logoutBtn")
+        .addEventListener("click", logout);
+
+    async function initialize() {
+        try {
+            const isAdmin = await ensureAdmin();
+
+            if (!isAdmin) {
+                return;
+            }
+
+            await Promise.all([
+                loadStats(),
+                loadApplications()
+            ]);
+
+        } catch (error) {
+            console.error(error);
+
+            showError(
+                error.message ||
+                "Unable to initialize Customer Applications."
+            );
+        }
+    }
+
+    initialize();
+
+})();
+</script>
+
+</body>
+</html>

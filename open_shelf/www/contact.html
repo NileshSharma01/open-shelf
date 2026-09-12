@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Open Shelf</title>
+    <meta name="description" content="Contact Open Shelf Reading Foundation.">
+    <style>
+        *{box-sizing:border-box}
+        body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#292929;background:#faf8f3;line-height:1.6}
+        a{text-decoration:none;color:inherit}
+        .nav{background:#fff;border-bottom:1px solid #e7e1d8;position:sticky;top:0;z-index:20}
+        .nav-inner{max-width:1180px;margin:auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+        .brand{font-size:23px;font-weight:700}
+        .links{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+        .links a{font-size:14px;color:#555}
+        .links a:hover{color:#111}
+        .button{display:inline-block;padding:11px 18px;border-radius:6px;background:#24201b;color:#fff;font-weight:600}
+        .hero{padding:75px 24px;background:#eee7dc;text-align:center}
+        .eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700;color:#766b5e}
+        h1{font-size:46px;line-height:1.1;margin:14px 0}
+        .hero p{max-width:700px;margin:auto;color:#5e574e;font-size:18px}
+        .section{max-width:1000px;margin:auto;padding:65px 24px}
+        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+        .card{background:#fff;border:1px solid #e5dfd6;border-radius:10px;padding:30px}
+        .card h2{margin-top:0;font-size:23px}
+        .card p{color:#625c54}
+        .detail{padding:16px 0;border-bottom:1px solid #ece7df}
+        .detail:last-child{border-bottom:0}
+        .label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:#766b5e;margin-bottom:4px}
+        .detail a{font-weight:600;color:#292929}
+        .detail a:hover{text-decoration:underline}
+        .form{display:grid;gap:16px}
+        label{font-size:14px;font-weight:600}
+        input,textarea{width:100%;padding:13px 14px;border:1px solid #d9d2c8;border-radius:6px;font:inherit;background:#fff}
+        textarea{min-height:150px;resize:vertical}
+        button{border:0;cursor:pointer;padding:13px 20px;border-radius:6px;background:#24201b;color:#fff;font-weight:700;font-size:15px}
+        .note{font-size:13px;color:#756e65}
+        footer{background:#171513;color:#cfc8bf;padding:30px 24px;text-align:center;font-size:13px}
+        @media(max-width:800px){
+            .links{display:none}
+            h1{font-size:38px}
+            .contact-grid{grid-template-columns:1fr}
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a class="brand" href="/">Open Shelf</a>
+        <div class="links">
+            <a href="/">Home</a>
+            <a href="/catalogue">Explore Our Collection</a>
+            <a href="/space-plans">Book a Working Spot</a>
+            <a href="/membership">Become a Member</a>
+            <a href="/rental">Rentals</a>
+            <a href="/events">Upcoming Events</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            <a class="button" href="/login">Login</a>
+        </div>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="eyebrow">Open Shelf Reading Foundation</div>
+    <h1>Contact Us</h1>
+    <p>
+        Have a question about books, membership, working plans, rentals or
+        community activities? Get in touch with Open Shelf.
+    </p>
+</header>
+
+<section class="section">
+    <div class="contact-grid">
+
+        <div class="card">
+            <h2>Get in touch</h2>
+
+            <div class="detail">
+                <span class="label">Email</span>
+                <a href="mailto:store@openshelfreadingfoundation.com">
+                    store@openshelfreadingfoundation.com
+                </a>
+            </div>
+
+            <div class="detail">
+                <span class="label">What we can help with</span>
+                <div>
+                    Become a Member &nbsp;·&nbsp;
+                    Books &nbsp;·&nbsp;
+                    Rentals &nbsp;·&nbsp;
+                    Book a Working Spot &nbsp;·&nbsp;
+                    Upcoming Events
+                </div>
+            </div>
+
+            <div class="detail">
+                <span class="label">Online</span>
+                <a href="/catalogue">
+                    Browse the Open Shelf collection
+                </a>
+            </div>
+
+            <p class="note">
+                For Become a Member and Solo Working applications, please use the
+                registration form so that your application can be processed
+                through the Open Shelf system.
+            </p>
+
+            <a class="button" href="/assets/open_shelf/frontend/pages/customer-registration/customer-registration.html">
+                Customer Registration
+            </a>
+        </div>
+
+        <div class="card">
+            <h2>Send a message</h2>
+
+            <form class="form" action="mailto:store@openshelfreadingfoundation.com" method="post" enctype="text/plain">
+                <div>
+                    <label for="name">Name</label>
+                    <input id="name" name="Name" type="text" required>
+                </div>
+
+                <div>
+                    <label for="email">Email</label>
+                    <input id="email" name="Email" type="email" required>
+                </div>
+
+                <div>
+                    <label for="message">Message</label>
+                    <textarea id="message" name="Message" required></textarea>
+                </div>
+
+                <button type="submit">Send Message</button>
+
+                <div class="note">
+                    This form opens your email application. A server-side
+                    contact form can be connected later if required.
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>
+
+<footer>
+    &copy; 2026 Open Shelf Reading Foundation. All rights reserved.
+</footer>
+
+</body>
+</html>

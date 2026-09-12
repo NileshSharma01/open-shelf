@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Become a Member | Open Shelf Reading Foundation</title>
+
+    <meta
+        name="description"
+        content="Choose an Open Shelf Reading Foundation membership plan."
+    >
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/css/open_shelf.css"
+    >
+
+</head>
+
+
+<body>
+
+<header class="navbar">
+
+    <div class="container navbar-inner">
+
+        <a href="/" class="brand">
+
+            <div class="brand-mark">
+                OS
+            </div>
+
+            <div class="brand-text">
+                <strong>Open Shelf</strong>
+                <span>Reading Foundation</span>
+            </div>
+
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/catalogue">
+                Explore Our Collection
+            </a>
+
+            <a
+                href="/membership"
+                class="active"
+            >
+                Become a Member
+            </a>
+
+            <a href="/space-plans">
+                Book a Working Spot
+            </a>
+
+            <a href="/rental">
+                Rentals
+            </a>
+            <a href="/events">
+                Upcoming Events
+            </a>
+
+            <a href="/about">
+                About
+            </a>
+
+            <a href="/contact">
+                Contact
+            </a>
+
+        </nav>
+
+
+        <div class="nav-actions">
+
+            <a
+                href="/login"
+                class="btn btn-outline"
+                id="loginButton"
+            >
+                Login
+            </a>
+
+            <a
+                href="/membership"
+                class="btn btn-primary"
+            >
+                Join Us
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="page-header">
+
+    <div class="container">
+
+        <p class="eyebrow">
+            OPEN SHELF Become a Member
+        </p>
+
+        <h1 class="page-title">
+            Find your place on the shelf.
+        </h1>
+
+        <p class="page-description">
+            Choose a membership plan and become part of
+            the Open Shelf reading community.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="catalogue-section">
+
+    <div class="container">
+
+        <div
+            id="loginNotice"
+            class="empty"
+            style="display:none;"
+        >
+
+            <h2>
+                Login required
+            </h2>
+
+            <p>
+                Please log in before purchasing a membership.
+            </p>
+
+            <br>
+
+            <a
+                href="/login"
+                class="btn btn-primary"
+            >
+                Login
+            </a>
+
+        </div>
+
+
+        <div
+            id="plansLoading"
+            class="loading"
+        >
+            Loading membership plans...
+        </div>
+
+
+        <div
+            id="plansError"
+            class="error"
+            style="display:none;"
+        >
+            Unable to load membership plans.
+            Please try again.
+        </div>
+
+
+        <div
+            id="plansGrid"
+            class="books-grid"
+            style="display:none;"
+        ></div>
+
+
+        <div
+            id="membershipMessage"
+            style="display:none; margin-top:30px;"
+        ></div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="container footer-content">
+
+        <div>
+            <strong>
+                Open Shelf Reading Foundation
+            </strong>
+        </div>
+
+        <div class="footer-text">
+            Books • Reading • Community
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    /*
+     * Open Shelf membership-plan navigation.
+     *
+     * Capture the pointer event before any page element can intercept it.
+     * This also handles cases where a decorative/stacking element sits
+     * above the visible Choose Plan control.
+     */
+    document.addEventListener("pointerdown", function (event) {
+        if (event.button !== 0) {
+            return;
+        }
+
+        const elements = document.elementsFromPoint(
+            event.clientX,
+            event.clientY
+        );
+
+        for (const element of elements) {
+            const link = element.closest
+                ? element.closest("a.membership-button")
+                : null;
+
+            if (link && link.href) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                window.location.assign(link.href);
+                return;
+            }
+
+            if (
+                element.classList &&
+                element.classList.contains("membership-button")
+            ) {
+                const planName = element.getAttribute("data-plan");
+
+                if (planName) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    window.location.assign(
+                        "/assets/open_shelf/frontend/pages/customer-registration/customer-registration.html?plan=" +
+                        encodeURIComponent(planName)
+                    );
+                    return;
+                }
+            }
+        }
+    }, true);
+})();
+</script>
+
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const API =
+        "/api/method/open_shelf.api.api";
+
+
+    const plansLoading =
+        document.getElementById("plansLoading");
+
+    const plansError =
+        document.getElementById("plansError");
+
+    const plansGrid =
+        document.getElementById("plansGrid");
+
+    const loginNotice =
+        document.getElementById("loginNotice");
+
+    const membershipMessage =
+        document.getElementById(
+            "membershipMessage"
+        );
+
+
+    function escapeHtml(value) {
+
+        return OpenShelf.escapeHtml(value);
+
+    }
+
+
+    function formatPrice(value) {
+
+        return OpenShelf.formatPrice(
+            Number(value || 0)
+        );
+
+    }
+
+
+    async function getCurrentUser() {
+
+        return await OpenShelf.getCurrentUser();
+
+    }
+
+
+    async function loadPlans() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}.get_membership_plans`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                data.exception ||
+                data.exc
+            ) {
+
+                throw new Error(
+                    data.exception ||
+                    data.message ||
+                    "Unable to load plans."
+                );
+
+            }
+
+
+            const plans =
+                data.message || [];
+
+
+            plansLoading.style.display =
+                "none";
+
+
+            if (!plans.length) {
+
+                plansGrid.style.display =
+                    "block";
+
+                plansGrid.innerHTML = `
+                    <div class="empty">
+                        No membership plans are currently available.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            plansGrid.innerHTML =
+                plans
+                    .map(createPlanCard)
+                    .join("");
+
+
+            plansGrid.style.display =
+                "grid";
+
+
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            plansLoading.style.display =
+                "none";
+
+            plansError.style.display =
+                "block";
+
+        }
+
+    }
+
+
+    function createPlanCard(plan) {
+
+        const duration =
+            Number(plan.duration_months || 0);
+
+
+        const durationText =
+            duration === 1
+                ? "1 month"
+                : `${duration} months`;
+
+
+        return `
+
+            <article class="book-card">
+
+                <div class="book-cover">
+
+                    <div class="cover-placeholder">
+                        OS
+                    </div>
+
+                </div>
+
+
+                <div class="book-content">
+
+                    <div class="book-category">
+                        Become a Member
+                    </div>
+
+
+                    <h2 class="book-title">
+                        ${escapeHtml(plan.plan_name)}
+                    </h2>
+
+
+                    <div class="book-author">
+                        ${escapeHtml(durationText)}
+                    </div>
+
+
+                    <p style="margin:15px 0; line-height:1.6;">
+                        ${escapeHtml(
+                            plan.description ||
+                            "Join the Open Shelf reading community."
+                        )}
+                    </p>
+
+
+                    <div class="book-bottom">
+
+                        <div class="book-price">
+                            ${formatPrice(plan.price)}
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        class="view-button membership-button"
+                        href="/assets/open_shelf/frontend/pages/customer-registration/customer-registration.html?plan=${encodeURIComponent(plan.name)}"
+                    >
+                        Choose Plan
+                    </a>
+
+                </div>
+
+            </article>
+
+        `;
+
+    }
+
+
+})();
+
+</script>
+
+</body>
+</html>

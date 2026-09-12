@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Become a Member | Open Shelf Reading Foundation</title>
+
+    <meta
+        name="description"
+        content="Choose an Open Shelf Reading Foundation membership plan."
+    >
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/css/open_shelf.css"
+    >
+
+</head>
+
+
+<body>
+
+<header class="navbar">
+
+    <div class="container navbar-inner">
+
+        <a href="/" class="brand">
+
+            <div class="brand-mark">
+                OS
+            </div>
+
+            <div class="brand-text">
+                <strong>Open Shelf</strong>
+                <span>Reading Foundation</span>
+            </div>
+
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/catalogue">
+                Explore Our Collection
+            </a>
+
+            <a
+                href="/membership"
+                class="active"
+            >
+                Become a Member
+            </a>
+
+            <a href="/space-plans">
+                Book a Working Spot
+            </a>
+
+            <a href="/rental">
+                Rentals
+            </a>
+            <a href="/events">
+                Upcoming Events
+            </a>
+
+            <a href="/about">
+                About
+            </a>
+
+            <a href="/contact">
+                Contact
+            </a>
+
+        </nav>
+
+
+        <div class="nav-actions">
+
+            <a
+                href="/login"
+                class="btn btn-outline"
+                id="loginButton"
+            >
+                Login
+            </a>
+
+            <a
+                href="/membership"
+                class="btn btn-primary"
+            >
+                Join Us
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="page-header">
+
+    <div class="container">
+
+        <p class="eyebrow">
+            OPEN SHELF Become a Member
+        </p>
+
+        <h1 class="page-title">
+            Find your place on the shelf.
+        </h1>
+
+        <p class="page-description">
+            Choose a membership plan and become part of
+            the Open Shelf reading community.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="catalogue-section">
+
+    <div class="container">
+
+        <div
+            id="loginNotice"
+            class="empty"
+            style="display:none;"
+        >
+
+            <h2>
+                Login required
+            </h2>
+
+            <p>
+                Please log in before purchasing a membership.
+            </p>
+
+            <br>
+
+            <a
+                href="/login"
+                class="btn btn-primary"
+            >
+                Login
+            </a>
+
+        </div>
+
+
+        <div
+            id="plansLoading"
+            class="loading"
+        >
+            Loading membership plans...
+        </div>
+
+
+        <div
+            id="plansError"
+            class="error"
+            style="display:none;"
+        >
+            Unable to load membership plans.
+            Please try again.
+        </div>
+
+
+        <div
+            id="plansGrid"
+            class="books-grid"
+            style="display:none;"
+        ></div>
+
+
+        <div
+            id="membershipMessage"
+            style="display:none; margin-top:30px;"
+        ></div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="container footer-content">
+
+        <div>
+            <strong>
+                Open Shelf Reading Foundation
+            </strong>
+        </div>
+
+        <div class="footer-text">
+            Books • Reading • Community
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const API =
+        "/api/method/open_shelf.api.api";
+
+
+    const plansLoading =
+        document.getElementById("plansLoading");
+
+    const plansError =
+        document.getElementById("plansError");
+
+    const plansGrid =
+        document.getElementById("plansGrid");
+
+    const loginNotice =
+        document.getElementById("loginNotice");
+
+    const membershipMessage =
+        document.getElementById(
+            "membershipMessage"
+        );
+
+
+    function escapeHtml(value) {
+
+        return OpenShelf.escapeHtml(value);
+
+    }
+
+
+    function formatPrice(value) {
+
+        return OpenShelf.formatPrice(
+            Number(value || 0)
+        );
+
+    }
+
+
+    async function getCurrentUser() {
+
+        return await OpenShelf.getCurrentUser();
+
+    }
+
+
+    async function loadPlans() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}.get_membership_plans`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                data.exception ||
+                data.exc
+            ) {
+
+                throw new Error(
+                    data.exception ||
+                    data.message ||
+                    "Unable to load plans."
+                );
+
+            }
+
+
+            const plans =
+                data.message || [];
+
+
+            plansLoading.style.display =
+                "none";
+
+
+            if (!plans.length) {
+
+                plansGrid.style.display =
+                    "block";
+
+                plansGrid.innerHTML = `
+                    <div class="empty">
+                        No membership plans are currently available.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            plansGrid.innerHTML =
+                plans
+                    .map(createPlanCard)
+                    .join("");
+
+
+            plansGrid.style.display =
+                "grid";
+
+
+            attachPlanHandlers();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            plansLoading.style.display =
+                "none";
+
+            plansError.style.display =
+                "block";
+
+        }
+
+    }
+
+
+    function createPlanCard(plan) {
+
+        const duration =
+            Number(plan.duration_months || 0);
+
+
+        const durationText =
+            duration === 1
+                ? "1 month"
+                : `${duration} months`;
+
+
+        return `
+
+            <article class="book-card">
+
+                <div class="book-cover">
+
+                    <div class="cover-placeholder">
+                        OS
+                    </div>
+
+                </div>
+
+
+                <div class="book-content">
+
+                    <div class="book-category">
+                        Become a Member
+                    </div>
+
+
+                    <h2 class="book-title">
+                        ${escapeHtml(plan.plan_name)}
+                    </h2>
+
+
+                    <div class="book-author">
+                        ${escapeHtml(durationText)}
+                    </div>
+
+
+                    <p style="margin:15px 0; line-height:1.6;">
+                        ${escapeHtml(
+                            plan.description ||
+                            "Join the Open Shelf reading community."
+                        )}
+                    </p>
+
+
+                    <div class="book-bottom">
+
+                        <div class="book-price">
+                            ${formatPrice(plan.price)}
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="view-button membership-button"
+                        data-plan="${escapeHtml(plan.name)}"
+                    >
+                        Choose Plan
+                    </button>
+
+                </div>
+
+            </article>
+
+        `;
+
+    }
+
+
+    function attachPlanHandlers() {
+
+        document
+            .querySelectorAll(".membership-button")
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            const planName =
+                                button.dataset.plan;
+
+                            if (!planName) {
+                                console.error(
+                                    "Membership plan is missing."
+                                );
+                                return;
+                            }
+
+                            window.location.href =
+                                "/assets/open_shelf/frontend/pages/customer-registration/customer-registration.html?plan=" +
+                                encodeURIComponent(planName);
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+
+    async function startMembership(
+        planName,
+        button
+    ) {
+
+        membershipMessage.style.display =
+            "none";
+
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Processing...";
+
+
+        try {
+
+            const user =
+                await getCurrentUser();
+
+
+            if (!user || user === "Guest") {
+
+                loginNotice.style.display =
+                    "block";
+
+                loginNotice.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+                return;
+
+            }
+
+
+            /*
+             * The backend identifies the Member from
+             * the currently logged-in Frappe User.
+             *
+             * We deliberately do NOT send a Member ID
+             * from the browser.
+             */
+
+            const memberResponse =
+                await fetch(
+                    `${API}.get_member`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            const memberData =
+                await memberResponse.json();
+
+
+            if (
+                !memberResponse.ok ||
+                memberData.exception ||
+                memberData.exc
+            ) {
+
+                throw new Error(
+                    memberData.exception ||
+                    memberData.message ||
+                    "Your account is not linked to an Open Shelf member."
+                );
+
+            }
+
+
+            const member =
+                memberData.message;
+
+
+            if (!member || !member.name) {
+
+                throw new Error(
+                    "Your account is not linked to an Open Shelf member."
+                );
+
+            }
+
+
+            /*
+             * Create the Become a Member.
+             *
+             * The server determines the Member from
+             * the authenticated Frappe session.
+             */
+
+            const response =
+                await fetch(
+                    `${API}.create_membership`,
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded; charset=UTF-8",
+                            "Accept":
+                                "application/json"
+                        },
+                        body:
+                            new URLSearchParams({
+                                membership_plan:
+                                    planName
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                data.exception ||
+                data.exc
+            ) {
+
+                throw new Error(
+                    data.exception ||
+                    data.message ||
+                    "Unable to create Become a Member."
+                );
+
+            }
+
+
+            const result =
+                data.message;
+
+
+            membershipMessage.innerHTML = `
+
+                <div class="empty">
+
+                    <h2>
+                        Membership created
+                    </h2>
+
+                    <p>
+                        Your membership is currently
+                        <strong>Pending</strong>.
+                    </p>
+
+                    <p>
+                        Amount due:
+                        <strong>
+                            ${formatPrice(result.amount)}
+                        </strong>
+                    </p>
+
+                    <p>
+                        Invoice:
+                        <strong>
+                            ${escapeHtml(result.sales_invoice)}
+                        </strong>
+                    </p>
+
+                    <br>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="payMembershipButton"
+                    >
+                        Continue to Payment
+                    </button>
+
+                </div>
+
+            `;
+
+
+            membershipMessage.style.display =
+                "block";
+
+
+            document
+                .getElementById(
+                    "payMembershipButton"
+                )
+                .addEventListener(
+                    "click",
+                    function () {
+
+                        payMembership(
+                            result
+                        );
+
+                    }
+                );
+
+
+            membershipMessage.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            membershipMessage.innerHTML = `
+
+                <div class="error">
+                    ${escapeHtml(
+                        error.message ||
+                        "Unable to create Become a Member."
+                    )}
+                </div>
+
+            `;
+
+            membershipMessage.style.display =
+                "block";
+
+        }
+
+        finally {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Choose Plan";
+
+        }
+
+    }
+
+
+
+    async function startSpacePlanPurchase(
+        planName,
+        button
+    ) {
+
+        const originalText =
+            button.textContent;
+
+        button.disabled = true;
+        button.textContent = "Processing...";
+
+        try {
+
+            const user =
+                await getCurrentUser();
+
+            if (!user || user === "Guest") {
+
+                loginNotice.style.display =
+                    "block";
+
+                loginNotice.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+                return;
+            }
+
+            const confirmed =
+                window.confirm(
+                    `Purchase ${planName}?`
+                );
+
+            if (!confirmed) {
+                return;
+            }
+
+            const response =
+                await fetch(
+                    `${API}.create_space_plan_invoice`,
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded; charset=UTF-8",
+                            "Accept":
+                                "application/json"
+                        },
+                        body:
+                            new URLSearchParams({
+                                space_plan:
+                                    planName
+                            })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (
+                !response.ok ||
+                data.exception ||
+                data.exc
+            ) {
+                throw new Error(
+                    data.exception ||
+                    data.message ||
+                    "Unable to create space plan invoice."
+                );
+            }
+
+            const invoice =
+                data.message;
+
+            if (
+                !invoice ||
+                !invoice.invoice
+            ) {
+                throw new Error(
+                    "Space plan invoice was not created."
+                );
+            }
+
+            const orderResponse =
+                await fetch(
+                    `${API}.create_razorpay_order`,
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded; charset=UTF-8",
+                            "Accept":
+                                "application/json"
+                        },
+                        body:
+                            new URLSearchParams({
+                                sales_invoice:
+                                    invoice.invoice
+                            })
+                    }
+                );
+
+            const orderData =
+                await orderResponse.json();
+
+            if (
+                !orderResponse.ok ||
+                orderData.exception ||
+                orderData.exc
+            ) {
+                throw new Error(
+                    orderData.exception ||
+                    orderData.message ||
+                    "Unable to create Razorpay order."
+                );
+            }
+
+            const order =
+                orderData.message;
+
+            if (
+                !order ||
+                !order.order_id
+            ) {
+                throw new Error(
+                    "Razorpay order was not created."
+                );
+            }
+
+            if (
+                typeof Razorpay ===
+                "undefined"
+            ) {
+                throw new Error(
+                    "Razorpay checkout is not available."
+                );
+            }
+
+            const options = {
+
+                key:
+                    order.key_id,
+
+                amount:
+                    order.amount,
+
+                currency:
+                    order.currency,
+
+                name:
+                    "Open Shelf Reading Foundation",
+
+                description:
+                    `Space Plan - ${invoice.plan_name}`,
+
+                order_id:
+                    order.order_id,
+
+                handler:
+                    async function (
+                        response
+                    ) {
+
+                        try {
+
+                            const verifyResponse =
+                                await fetch(
+                                    `${API}.verify_razorpay_payment`,
+                                    {
+                                        method: "POST",
+                                        credentials: "include",
+                                        headers: {
+                                            "Content-Type":
+                                                "application/x-www-form-urlencoded; charset=UTF-8",
+                                            "Accept":
+                                                "application/json"
+                                        },
+                                        body:
+                                            new URLSearchParams({
+                                                sales_invoice:
+                                                    invoice.invoice,
+
+                                                razorpay_payment_id:
+                                                    response.razorpay_payment_id,
+
+                                                razorpay_order_id:
+                                                    response.razorpay_order_id,
+
+                                                razorpay_signature:
+                                                    response.razorpay_signature
+                                            })
+                                    }
+                                );
+
+                            const verifyData =
+                                await verifyResponse.json();
+
+                            if (
+                                !verifyResponse.ok ||
+                                verifyData.exception ||
+                                verifyData.exc
+                            ) {
+                                throw new Error(
+                                    verifyData.exception ||
+                                    verifyData.message ||
+                                    "Payment verification failed."
+                                );
+                            }
+
+                            const result =
+                                verifyData.message;
+
+                            if (
+                                result &&
+                                result.success
+                            ) {
+
+                                window.alert(
+                                    "Payment successful. Your space access is now active."
+                                );
+
+                                window.location.reload();
+
+                                return;
+                            }
+
+                            throw new Error(
+                                "Payment verification failed."
+                            );
+
+                        }
+
+                        catch (error) {
+
+                            console.error(error);
+
+                            window.alert(
+                                error.message ||
+                                "Payment verification failed."
+                            );
+
+                        }
+
+                    },
+
+                prefill: {
+                    name:
+                        order.customer_name
+                },
+
+                theme: {
+                    color: "#111111"
+                }
+
+            };
+
+            const checkout =
+                new Razorpay(options);
+
+            checkout.open();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            window.alert(
+                error.message ||
+                "Unable to start Space Plan payment."
+            );
+
+        }
+
+        finally {
+
+            button.disabled = false;
+            button.textContent = originalText;
+
+        }
+
+    }
+
+
+    function attachSpacePlanHandlers() {
+
+        document
+            .querySelectorAll(
+                ".space-plan-button"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            startSpacePlanPurchase(
+                                button.dataset.spacePlan,
+                                button
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+
+    attachSpacePlanHandlers();
+
+
+    async function payMembership(result) {
+        const button = document.getElementById("pay-Become a Member-btn");
+
+        try {
+            if (!result || !result.sales_invoice) {
+                throw new Error("Membership invoice was not created.");
+            }
+
+            if (button) {
+                button.disabled = true;
+                button.textContent = "Opening Payment...";
+            }
+
+            // Step 1: Create Razorpay order on the server
+            const orderResponse = await fetch(
+                `${API}.create_razorpay_order`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        sales_invoice: result.sales_invoice
+                    })
+                }
+            );
+
+            const orderData = await orderResponse.json();
+
+            if (!orderResponse.ok || orderData.exc) {
+                throw new Error(
+                    orderData.message ||
+                    "Unable to create Razorpay payment order."
+                );
+            }
+
+            const orderResult = orderData.message || orderData;
+
+            if (!orderResult.success) {
+                throw new Error(
+                    orderResult.message ||
+                    "Unable to create Razorpay payment order."
+                );
+            }
+
+            if (!orderResult.order_id) {
+                throw new Error("Razorpay order ID was not returned.");
+            }
+
+            // Step 2: Make sure Razorpay Checkout is available
+            if (typeof Razorpay === "undefined") {
+                throw new Error(
+                    "Razorpay Checkout is not loaded. Please refresh the page and try again."
+                );
+            }
+
+            // Step 3: Open Razorpay Checkout
+            const options = {
+                key: orderResult.key_id,
+                amount: orderResult.amount,
+                currency: orderResult.currency || "INR",
+
+                name: "Open Shelf Reading Foundation",
+                description: "Become a Member",
+
+                order_id: orderResult.order_id,
+
+                prefill: {},
+
+                theme: {
+                    color: "#111827"
+                },
+
+                handler: async function (response) {
+                    await verifyMembershipPayment(
+                        result.sales_invoice,
+                        response
+                    );
+                },
+
+                modal: {
+                    ondismiss: function () {
+                        if (button) {
+                            button.disabled = false;
+                            button.textContent = "Continue to Payment";
+                        }
+                    }
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+
+            razorpay.on("payment.failed", function (response) {
+                console.error(
+                    "Razorpay payment failed:",
+                    response
+                );
+
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = "Continue to Payment";
+                }
+
+                if (typeof membershipMessage === "function") {
+                    membershipMessage(
+                        response.error?.description ||
+                        "Payment failed. Please try again.",
+                        "error"
+                    );
+                } else {
+                    alert(
+                        response.error?.description ||
+                        "Payment failed. Please try again."
+                    );
+                }
+            });
+
+            razorpay.open();
+
+        } catch (error) {
+            console.error("Membership payment error:", error);
+
+            if (button) {
+                button.disabled = false;
+                button.textContent = "Continue to Payment";
+            }
+
+            if (typeof membershipMessage === "function") {
+                membershipMessage(
+                    error.message ||
+                    "Unable to start payment. Please try again.",
+                    "error"
+                );
+            } else {
+                alert(
+                    error.message ||
+                    "Unable to start payment. Please try again."
+                );
+            }
+        }
+    }
+
+
+    async function verifyMembershipPayment(
+        salesInvoice,
+        response
+    ) {
+        const button = document.getElementById("pay-Become a Member-btn");
+
+        try {
+            if (
+                !response ||
+                !response.razorpay_payment_id ||
+                !response.razorpay_order_id ||
+                !response.razorpay_signature
+            ) {
+                throw new Error(
+                    "Razorpay payment verification data is incomplete."
+                );
+            }
+
+            if (button) {
+                button.disabled = true;
+                button.textContent = "Verifying Payment...";
+            }
+
+            // Step 4: Verify payment securely on the server
+            const verifyResponse = await fetch(
+                `${API}.verify_razorpay_payment`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        sales_invoice: salesInvoice,
+                        razorpay_payment_id:
+                            response.razorpay_payment_id,
+                        razorpay_order_id:
+                            response.razorpay_order_id,
+                        razorpay_signature:
+                            response.razorpay_signature
+                    })
+                }
+            );
+
+            const verifyData = await verifyResponse.json();
+
+            if (!verifyResponse.ok || verifyData.exc) {
+                throw new Error(
+                    verifyData.message ||
+                    "Payment verification failed."
+                );
+            }
+
+            const result = verifyData.message || verifyData;
+
+            if (!result.success) {
+                throw new Error(
+                    result.message ||
+                    "Payment verification failed."
+                );
+            }
+
+            // Step 5: Payment is verified and Become a Member is activated
+            if (typeof membershipMessage === "function") {
+                membershipMessage(
+                    "Payment successful. Your membership is now active.",
+                    "success"
+                );
+            }
+
+            const amount = Number(result.amount || 0);
+
+            const paymentHtml = `
+                <div class="membership-payment-success">
+                    <h3>Payment Successful</h3>
+                    <p>Your membership has been activated successfully.</p>
+
+                    <p>
+                        <strong>Amount Paid:</strong>
+                        ₹${amount.toFixed(2)}
+                    </p>
+
+                    <p>
+                        <strong>Invoice:</strong>
+                        ${escapeHtml(result.invoice || salesInvoice)}
+                    </p>
+
+                    <p>
+                        <strong>Payment ID:</strong>
+                        ${escapeHtml(
+                            response.razorpay_payment_id
+                        )}
+                    </p>
+
+                    <p>
+                        <strong>Membership Status:</strong>
+                        ${escapeHtml(
+                            result.membership_status || "Active"
+                        )}
+                    </p>
+                </div>
+            `;
+
+            const paymentContainer =
+                document.getElementById("Become a Member-payment");
+
+            if (paymentContainer) {
+                paymentContainer.innerHTML = paymentHtml;
+            }
+
+            if (button) {
+                button.disabled = true;
+                button.textContent = "Payment Completed";
+            }
+
+        } catch (error) {
+            console.error(
+                "Membership payment verification error:",
+                error
+            );
+
+            if (button) {
+                button.disabled = false;
+                button.textContent = "Continue to Payment";
+            }
+
+            if (typeof membershipMessage === "function") {
+                membershipMessage(
+                    error.message ||
+                    "Payment verification failed. Please contact support if money was deducted.",
+                    "error"
+                );
+            } else {
+                alert(
+                    error.message ||
+                    "Payment verification failed. Please contact support if money was deducted."
+                );
+            }
+        }
+    }
+
+
+    async function initialize() {
+
+        try {
+
+            const user =
+                await getCurrentUser();
+
+
+            if (!user || user === "Guest") {
+
+                loginNotice.style.display =
+                    "block";
+
+            }
+
+
+            await loadPlans();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            plansLoading.style.display =
+                "none";
+
+            plansError.style.display =
+                "block";
+
+        }
+
+    }
+
+
+    initialize();
+
+})();
+
+</script>
+
+    <script src="/assets/open_shelf/frontend/js/visitor-account.js"></script>
+
+</body>
+</html>

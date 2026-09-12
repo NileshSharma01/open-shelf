@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": null,
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "book",
+  "member",
+  "rental_plan",
+  "quantity",
+  "rental_date",
+  "due_date",
+  "return_date",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "book",
+   "label": "Book",
+   "fieldtype": "Link",
+   "options": "Book",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "member",
+   "label": "Member",
+   "fieldtype": "Link",
+   "options": "Member",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "rental_plan",
+   "label": "Rental Plan",
+   "fieldtype": "Link",
+   "options": "Rental Plan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "quantity",
+   "label": "Quantity",
+   "fieldtype": "Int",
+   "reqd": 1,
+   "default": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "rental_date",
+   "label": "Rental Date",
+   "fieldtype": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "due_date",
+   "label": "Due Date",
+   "fieldtype": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "return_date",
+   "label": "Return Date",
+   "fieldtype": "Date"
+  },
+  {
+   "fieldname": "status",
+   "label": "Status",
+   "fieldtype": "Select",
+   "options": "Rented\nReturned\nOverdue\nLost",
+   "default": "Rented",
+   "in_list_view": 1
+  }
+ ],
+ "links": [],
+ "module": "Open Shelf",
+ "name": "Rental",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1,
+   "export": 1,
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

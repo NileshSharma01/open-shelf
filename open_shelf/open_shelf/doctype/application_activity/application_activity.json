@@ -1,0 +1,29 @@
+{
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2026-09-09 00:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "activity"
+  ],
+  "fields": [
+    {
+      "fieldname": "activity",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Activity",
+      "options": "Kids reading/activities\nBook launches\nHistorian sessions\nArt & Artists\nCareer Counselling for young adults\nYoga & Meditation\nMindfulness\nFood & Culinary related\nCommunity building\nOthers",
+      "reqd": 1
+    }
+  ],
+  "istable": 1,
+  "links": [],
+  "modified": "2026-09-09 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Open Shelf",
+  "name": "Application Activity",
+  "owner": "Administrator",
+  "permissions": []
+}

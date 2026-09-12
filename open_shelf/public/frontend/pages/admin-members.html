@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Shelf - Members</title>
+
+    <script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Arial, sans-serif;
+            background: #f5f6f8;
+            color: #1f2937;
+        }
+
+        .topbar {
+            background: #111827;
+            color: white;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            opacity: .9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 28px auto;
+            padding: 0 20px;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .search {
+            max-width: 420px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .primary {
+            background: #111827;
+            color: white;
+        }
+
+        .secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .table-wrap {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 950px;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f9fafb;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .status-suspended {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+            color: #6b7280;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            background: white;
+            width: min(850px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close {
+            background: transparent;
+            font-size: 24px;
+            padding: 2px 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 700px) {
+            .topbar {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 0 12px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                align-items: stretch;
+            }
+
+            .search {
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="topbar">
+    <h1>Open Shelf — Members</h1>
+    <a class="back-link" href="/assets/open_shelf/frontend/pages/admin.html">
+        ← Admin Dashboard
+    </a>
+</header>
+
+<main class="container">
+
+    <div id="message" class="message"></div>
+
+    <section class="stats">
+        <div class="stat">
+            <div class="stat-label">Total Members</div>
+            <div id="total-members" class="stat-value">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Active Members</div>
+            <div id="active-members" class="stat-value">0</div>
+        </div>
+
+        <div class="stat">
+            <div class="stat-label">Suspended Members</div>
+            <div id="suspended-members" class="stat-value">0</div>
+        </div>
+    </section>
+
+    <section class="toolbar">
+        <input
+            id="search"
+            class="search"
+            type="search"
+            placeholder="Search name, email, phone or user..."
+        >
+
+        <select id="status-filter">
+            <option value="">All statuses</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Suspended">Suspended</option>
+        </select>
+
+        <button class="secondary" onclick="loadMembers()">
+            Refresh
+        </button>
+
+        <button class="primary" onclick="openCreateModal()">
+            + Add Member
+        </button>
+    </section>
+
+    <section class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Memberships</th>
+                    <th>Rentals</th>
+                    <th>Join Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="members-body">
+                <tr>
+                    <td colspan="8" class="loading">
+                        Loading members...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<div id="member-modal" class="modal">
+    <div class="modal-card">
+
+        <div class="modal-header">
+            <h2 id="modal-title">Add Member</h2>
+            <button class="close" onclick="closeModal()">×</button>
+        </div>
+
+        <form id="member-form">
+
+            <input type="hidden" id="member-name">
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="user">User *</label>
+                    <select id="user" required>
+                        <option value="">Loading users...</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="full-name">Full Name *</label>
+                    <input id="full-name" type="text" required>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" type="email">
+                </div>
+
+                <div class="field">
+                    <label for="phone">Phone</label>
+                    <input id="phone" type="text">
+                </div>
+
+                <div class="field full">
+                    <label for="address">Address</label>
+                    <textarea id="address" rows="3"></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="date-of-birth">Date of Birth</label>
+                    <input id="date-of-birth" type="date">
+                </div>
+
+                <div class="field">
+                    <label for="join-date">Join Date *</label>
+                    <input id="join-date" type="date" required>
+                </div>
+
+                <div class="field">
+                    <label for="status">Status *</label>
+                    <select id="status" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Suspended">Suspended</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary" onclick="closeModal()">
+                    Cancel
+                </button>
+
+                <button type="submit" class="primary">
+                    Save Member
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    let members = [];
+    let users = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function showMessage(text, type) {
+        const box = $("message");
+        box.textContent = text;
+        box.className = "message " + type;
+
+        setTimeout(() => {
+            box.className = "message";
+            box.textContent = "";
+        }, 4000);
+    }
+
+    function statusClass(status) {
+        if (status === "Active") return "status-active";
+        if (status === "Suspended") return "status-suspended";
+        return "status-inactive";
+    }
+
+    function renderStats() {
+        $("total-members").textContent = members.length;
+
+        $("active-members").textContent =
+            members.filter(m => m.status === "Active").length;
+
+        $("suspended-members").textContent =
+            members.filter(m => m.status === "Suspended").length;
+    }
+
+    function renderMembers() {
+        const body = $("members-body");
+
+        if (!members.length) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty">
+                        No members found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        body.innerHTML = members.map(member => `
+            <tr>
+                <td>
+                    <strong>${OpenShelf.escapeHtml(member.full_name)}</strong>
+                    <div style="font-size:12px;color:#6b7280;margin-top:3px;">
+                        ${OpenShelf.escapeHtml(member.name)}
+                    </div>
+                </td>
+
+                <td>${OpenShelf.escapeHtml(member.email || "-")}</td>
+
+                <td>${OpenShelf.escapeHtml(member.phone || "-")}</td>
+
+                <td>
+                    <span class="status ${statusClass(member.status)}">
+                        ${OpenShelf.escapeHtml(member.status)}
+                    </span>
+                </td>
+
+                <td>${Number(member.active_memberships || 0)}</td>
+
+                <td>${Number(member.active_rentals || 0)}</td>
+
+                <td>${OpenShelf.escapeHtml(member.join_date || "-")}</td>
+
+                <td>
+                    <div class="actions">
+                        <button
+                            class="secondary"
+                            onclick="editMember('${encodeURIComponent(member.name)}')"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="danger"
+                            onclick="deleteMember('${encodeURIComponent(member.name)}')"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join("");
+    }
+
+    async function loadUsers() {
+        users = await OpenShelf.apiGet(
+            "/api/method/open_shelf.api.api.get_admin_member_users"
+        );
+
+        const select = $("user");
+
+        select.innerHTML =
+            '<option value="">Select Website User</option>' +
+            users.map(user => `
+                <option value="${OpenShelf.escapeHtml(user.name)}">
+                    ${OpenShelf.escapeHtml(
+                        user.full_name || user.name
+                    )} — ${OpenShelf.escapeHtml(user.name)}
+                </option>
+            `).join("");
+    }
+
+    async function loadMembers() {
+        const search = $("search").value.trim();
+        const status = $("status-filter").value;
+
+        try {
+            let url =
+                "/api/method/open_shelf.api.api.get_admin_members";
+
+            const params = new URLSearchParams();
+
+            if (search) params.set("search", search);
+            if (status) params.set("status", status);
+
+            if (params.toString()) {
+                url += "?" + params.toString();
+            }
+
+            members = await OpenShelf.apiGet(url);
+
+            renderStats();
+            renderMembers();
+
+        } catch (error) {
+            $("members-body").innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty">
+                        ${OpenShelf.escapeHtml(error.message)}
+                    </td>
+                </tr>
+            `;
+
+            showMessage(error.message, "error");
+        }
+    }
+
+    async function openCreateModal() {
+        $("modal-title").textContent = "Add Member";
+        $("member-name").value = "";
+
+        $("member-form").reset();
+
+        $("join-date").value =
+            new Date().toISOString().slice(0, 10);
+
+        $("status").value = "Active";
+
+        $("user").disabled = false;
+
+        try {
+            await loadUsers();
+        } catch (error) {
+            showMessage(error.message, "error");
+            return;
+        }
+
+        $("member-modal").classList.add("open");
+    }
+
+    async function editMember(encodedName) {
+        const name = decodeURIComponent(encodedName);
+
+        try {
+            const member = await OpenShelf.apiGet(
+                "/api/method/open_shelf.api.api.get_admin_member?member=" +
+                encodeURIComponent(name)
+            );
+
+            await loadUsers();
+
+            $("modal-title").textContent = "Edit Member";
+            $("member-name").value = member.name;
+
+            $("user").value = member.user || "";
+            $("full-name").value = member.full_name || "";
+            $("email").value = member.email || "";
+            $("phone").value = member.phone || "";
+            $("address").value = member.address || "";
+            $("date-of-birth").value = member.date_of_birth || "";
+            $("join-date").value = member.join_date || "";
+            $("status").value = member.status || "Active";
+
+            $("user").disabled = false;
+
+            $("member-modal").classList.add("open");
+
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    }
+
+    async function deleteMember(encodedName) {
+        const name = decodeURIComponent(encodedName);
+
+        const member = members.find(m => m.name === name);
+
+        if (!member) return;
+
+        const confirmed = confirm(
+            `Delete member "${member.full_name}"?\n\n` +
+            `A member with active memberships or active rentals cannot be deleted.`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            await OpenShelf.apiPost(
+                "/api/method/open_shelf.api.api.delete_admin_member",
+                {member: name}
+            );
+
+            showMessage("Member deleted successfully.", "success");
+
+            await loadMembers();
+
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    }
+
+    function closeModal() {
+        $("member-modal").classList.remove("open");
+    }
+
+    $("member-form").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const memberName = $("member-name").value;
+
+        const payload = {
+            user: $("user").value,
+            full_name: $("full-name").value.trim(),
+            email: $("email").value.trim(),
+            phone: $("phone").value.trim(),
+            address: $("address").value.trim(),
+            date_of_birth: $("date-of-birth").value,
+            join_date: $("join-date").value,
+            status: $("status").value
+        };
+
+        try {
+            if (!payload.user) {
+                throw new Error("Please select a User.");
+            }
+
+            if (!payload.full_name) {
+                throw new Error("Full Name is required.");
+            }
+
+            if (!payload.join_date) {
+                throw new Error("Join Date is required.");
+            }
+
+            if (memberName) {
+                payload.member = memberName;
+
+                await OpenShelf.apiPost(
+                    "/api/method/open_shelf.api.api.update_admin_member",
+                    payload
+                );
+
+                showMessage("Member updated successfully.", "success");
+
+            } else {
+                await OpenShelf.apiPost(
+                    "/api/method/open_shelf.api.api.create_admin_member",
+                    payload
+                );
+
+                showMessage("Member created successfully.", "success");
+            }
+
+            closeModal();
+            await loadMembers();
+
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    });
+
+    $("search").addEventListener("input", function () {
+        clearTimeout(window.memberSearchTimer);
+
+        window.memberSearchTimer = setTimeout(
+            loadMembers,
+            250
+        );
+    });
+
+    $("status-filter").addEventListener("change", loadMembers);
+
+    window.openCreateModal = openCreateModal;
+    window.editMember = editMember;
+    window.deleteMember = deleteMember;
+    window.closeModal = closeModal;
+    window.loadMembers = loadMembers;
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        try {
+            await loadMembers();
+        } catch (error) {
+            showMessage(error.message, "error");
+        }
+    });
+
+})();
+</script>
+
+</body>
+</html>
