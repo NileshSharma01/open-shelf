@@ -279,9 +279,34 @@
             }
 
 
+            const bookingDate =
+                window.prompt(
+                    "Select working-space date (YYYY-MM-DD):",
+                    new Date().toISOString().slice(0, 10)
+                );
+
+
+            if (!bookingDate) {
+
+                return;
+
+            }
+
+
+            if (
+                !/^\d{4}-\d{2}-\d{2}$/.test(bookingDate.trim())
+            ) {
+
+                throw new Error(
+                    "Please enter the date in YYYY-MM-DD format."
+                );
+
+            }
+
+
             const confirmed =
                 window.confirm(
-                    `Purchase ${plan.plan_name} for ${formatPrice(plan.price)}?`
+                    `Purchase ${plan.plan_name} for ${formatPrice(plan.price)} on ${bookingDate}?`
                 );
 
 
@@ -296,7 +321,8 @@
                 await apiCall(
                     "create_space_plan_invoice",
                     {
-                        space_plan: plan.name
+                        space_plan: plan.name,
+                        booking_date: bookingDate
                     }
                 );
 

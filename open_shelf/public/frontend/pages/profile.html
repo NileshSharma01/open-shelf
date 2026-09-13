@@ -180,6 +180,117 @@
             font-size: 14px;
         }
 
+        .space-calendar {
+            border: 1px solid var(--account-border);
+            border-radius: 12px;
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        .space-calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .space-calendar-header span {
+            color: var(--account-muted);
+            font-size: 13px;
+        }
+
+        .space-calendar-weekdays,
+        .space-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .space-calendar-weekdays {
+            margin-bottom: 6px;
+        }
+
+        .space-calendar-weekdays div {
+            text-align: center;
+            color: var(--account-muted);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 2px;
+        }
+
+        .space-calendar-day {
+            min-height: 58px;
+            border: 1px solid var(--account-border);
+            border-radius: 8px;
+            padding: 7px;
+            box-sizing: border-box;
+            font-size: 13px;
+        }
+
+        .space-calendar-day span {
+            display: block;
+            font-weight: 700;
+        }
+
+        .space-calendar-day small {
+            display: block;
+            margin-top: 6px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .space-calendar-reserved {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #166534;
+        }
+
+        .space-calendar-available {
+            background: #f9fafb;
+        }
+
+        .space-calendar-empty {
+            border-color: transparent;
+            background: transparent;
+        }
+
+        .space-calendar-today {
+            box-shadow: inset 0 0 0 2px #111827;
+        }
+
+        .space-calendar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-top: 14px;
+            color: var(--account-muted);
+            font-size: 12px;
+        }
+
+        .space-calendar-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .space-calendar-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 1px solid var(--account-border);
+        }
+
+        .space-calendar-dot.reserved {
+            background: #dcfce7;
+            border-color: #86efac;
+        }
+
+        .space-calendar-dot.available {
+            background: #f9fafb;
+        }
+
         .empty-state {
             padding: 20px;
             text-align: center;
@@ -1262,6 +1373,304 @@
         }
 
 
+        const today =
+            new Date();
+
+        const calendarMonth =
+            today.getMonth();
+
+        const calendarYear =
+            today.getFullYear();
+
+
+        function dateKey(
+            date
+        ) {
+
+            const year =
+                date.getFullYear();
+
+            const month =
+                String(
+                    date.getMonth() + 1
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+            const day =
+                String(
+                    date.getDate()
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+            return `${year}-${month}-${day}`;
+
+        }
+
+
+        function parseDate(
+            value
+        ) {
+
+            if (!value) {
+                return null;
+            }
+
+            const parts =
+                String(value)
+                    .slice(0, 10)
+                    .split("-");
+
+            if (
+                parts.length !== 3
+            ) {
+                return null;
+            }
+
+            return new Date(
+                Number(parts[0]),
+                Number(parts[1]) - 1,
+                Number(parts[2])
+            );
+
+        }
+
+
+        function isDateReserved(
+            date
+        ) {
+
+            const current =
+                dateKey(date);
+
+            return accesses.some(
+                function (
+                    access
+                ) {
+
+                    if (
+                        String(
+                            access.status || ""
+                        ).toLowerCase() !== "active"
+                    ) {
+                        return false;
+                    }
+
+                    const start =
+                        parseDate(
+                            access.start_date
+                        );
+
+                    const end =
+                        parseDate(
+                            access.end_date
+                        );
+
+                    if (
+                        !start ||
+                        !end
+                    ) {
+                        return false;
+                    }
+
+                    return (
+                        current >=
+                        dateKey(start)
+                        &&
+                        current <=
+                        dateKey(end)
+                    );
+
+                }
+            );
+
+        }
+
+
+        function buildCalendar(
+            year,
+            month
+        ) {
+
+            const firstDay =
+                new Date(
+                    year,
+                    month,
+                    1
+                );
+
+            const lastDay =
+                new Date(
+                    year,
+                    month + 1,
+                    0
+                );
+
+            const monthName =
+                firstDay.toLocaleDateString(
+                    undefined,
+                    {
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+            const firstWeekday =
+                firstDay.getDay();
+
+            const daysInMonth =
+                lastDay.getDate();
+
+            let cells = "";
+
+
+            for (
+                let i = 0;
+                i < firstWeekday;
+                i++
+            ) {
+
+                cells += `
+                    <div
+                        class="space-calendar-day space-calendar-empty"
+                    ></div>
+                `;
+
+            }
+
+
+            for (
+                let day = 1;
+                day <= daysInMonth;
+                day++
+            ) {
+
+                const date =
+                    new Date(
+                        year,
+                        month,
+                        day
+                    );
+
+                const reserved =
+                    isDateReserved(
+                        date
+                    );
+
+                const isToday =
+                    dateKey(date) ===
+                    dateKey(today);
+
+
+                cells += `
+
+                    <div
+                        class="
+                            space-calendar-day
+                            ${reserved
+                                ? "space-calendar-reserved"
+                                : "space-calendar-available"}
+                            ${isToday
+                                ? "space-calendar-today"
+                                : ""}
+                        "
+                        title="${
+                            reserved
+                                ? "Reserved"
+                                : "No reservation"
+                        }"
+                    >
+
+                        <span>
+                            ${day}
+                        </span>
+
+                        ${
+                            reserved
+                                ? `
+                                    <small>
+                                        Reserved
+                                    </small>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                `;
+
+            }
+
+
+            return `
+
+                <div class="space-calendar">
+
+                    <div class="space-calendar-header">
+
+                        <strong>
+                            ${escape(
+                                monthName
+                            )}
+                        </strong>
+
+                        <span>
+                            Your reservations
+                        </span>
+
+                    </div>
+
+
+                    <div class="space-calendar-weekdays">
+
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+
+                    </div>
+
+
+                    <div class="space-calendar-grid">
+
+                        ${cells}
+
+                    </div>
+
+
+                    <div
+                        class="space-calendar-legend"
+                    >
+
+                        <span>
+                            <i
+                                class="space-calendar-dot reserved"
+                            ></i>
+                            Reserved
+                        </span>
+
+                        <span>
+                            <i
+                                class="space-calendar-dot available"
+                            ></i>
+                            No reservation
+                        </span>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
         spaceAccessContent.innerHTML = `
 
             <div class="table-wrap">
@@ -1416,6 +1825,29 @@
             </div>
 
 
+            <div
+                style="
+                    margin-top:24px;
+                "
+            >
+
+                <h3
+                    style="
+                        margin:0 0 14px;
+                        font-size:18px;
+                    "
+                >
+                    My Reservations
+                </h3>
+
+                ${buildCalendar(
+                    calendarYear,
+                    calendarMonth
+                )}
+
+            </div>
+
+
             ${
                 accesses[0] &&
                 accesses[0].plan
@@ -1480,7 +1912,6 @@
         `;
 
     }
-
 
     /* =========================================================
        membership HISTORY

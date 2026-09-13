@@ -547,6 +547,155 @@
         .admin-payment-no-invoice { padding: 18px; border: 1px solid #e5e7eb; border-radius: 10px; opacity: .7; }
         @media (max-width: 700px) { #admin-payments table { min-width: 900px; } .admin-payment-modal-card { width: calc(100vw - 20px); max-height: calc(100vh - 20px); } .admin-payment-modal-card .invoice-modal-body { max-height: calc(100vh - 150px); } }
 </style>
+
+    <style>
+        .space-admin-calendar {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #ffffff;
+            padding: 20px;
+        }
+
+        .space-admin-calendar-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .space-admin-calendar-toolbar strong {
+            font-size: 18px;
+        }
+
+        .admin-calendar-button {
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .admin-calendar-button:hover {
+            background: #f9fafb;
+        }
+
+        .space-admin-calendar-summary {
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f7f7f5;
+            color: #4b5563;
+            font-size: 13px;
+        }
+
+        .space-admin-calendar-weekdays,
+        .space-admin-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .space-admin-calendar-weekdays {
+            margin-bottom: 6px;
+        }
+
+        .space-admin-calendar-weekdays div {
+            text-align: center;
+            padding: 7px 2px;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .space-admin-calendar-day {
+            min-height: 125px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 8px;
+            box-sizing: border-box;
+            background: #ffffff;
+        }
+
+        .space-admin-calendar-day-number {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 7px;
+        }
+
+        .space-admin-calendar-day-number strong {
+            font-size: 13px;
+        }
+
+        .space-admin-calendar-capacity {
+            color: #6b7280;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+        .space-admin-calendar-empty {
+            border-color: transparent;
+            background: transparent;
+        }
+
+        .space-admin-calendar-today {
+            box-shadow: inset 0 0 0 2px #111827;
+        }
+
+        .space-admin-calendar-full {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .space-admin-calendar-available {
+            background: #f9fafb;
+        }
+
+        .space-admin-calendar-reservation {
+            margin-top: 5px;
+            padding: 6px 7px;
+            border-radius: 7px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 10px;
+            line-height: 1.35;
+        }
+
+        .space-admin-calendar-reservation strong {
+            display: block;
+            font-size: 10px;
+        }
+
+        .space-admin-calendar-reservation span {
+            display: block;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 700px) {
+
+            .space-admin-calendar {
+                padding: 12px;
+            }
+
+            .space-admin-calendar-day {
+                min-height: 95px;
+                padding: 6px;
+            }
+
+            .space-admin-calendar-reservation {
+                font-size: 9px;
+            }
+
+            .space-admin-calendar-reservation strong {
+                font-size: 9px;
+            }
+
+        }
+    </style>
+
 </head>
 
 <body>
@@ -672,6 +821,70 @@
             >
                 <span class="loading">—</span>
             </div>
+        </div>
+
+    </section>
+
+
+    <!-- ======================================================
+         WORKING SPACE CALENDAR
+    ======================================================= -->
+
+    <section class="admin-section" id="adminSpaceCalendar">
+
+        <h2>Working Space Calendar</h2>
+
+        <div class="space-admin-calendar">
+
+            <div class="space-admin-calendar-toolbar">
+
+                <button
+                    type="button"
+                    class="admin-calendar-button"
+                    id="spaceCalendarPrevious"
+                >
+                    Previous
+                </button>
+
+                <strong id="spaceCalendarMonth">
+                    Loading...
+                </strong>
+
+                <button
+                    type="button"
+                    class="admin-calendar-button"
+                    id="spaceCalendarNext"
+                >
+                    Next
+                </button>
+
+            </div>
+
+            <div
+                class="space-admin-calendar-summary"
+                id="spaceCalendarSummary"
+            >
+                Loading working-space reservations...
+            </div>
+
+            <div class="space-admin-calendar-weekdays">
+
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+
+            </div>
+
+            <div
+                class="space-admin-calendar-grid"
+                id="spaceCalendarGrid"
+            >
+            </div>
+
         </div>
 
     </section>
@@ -1136,6 +1349,339 @@
         }
     }
 
+
+    let spaceCalendarDate = new Date();
+
+    function spaceCalendarDateKey(date) {
+        return [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, "0"),
+            String(date.getDate()).padStart(2, "0")
+        ].join("-");
+    }
+
+    function spaceCalendarParseDate(value) {
+        if (!value) {
+            return null;
+        }
+
+        const parts = String(value).slice(0, 10).split("-");
+
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        return new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2])
+        );
+    }
+
+    function spaceCalendarEscape(value) {
+        const div = document.createElement("div");
+        div.textContent = value == null ? "" : String(value);
+        return div.innerHTML;
+    }
+
+    function spaceCalendarReservationsForDate(
+        reservations,
+        date
+    ) {
+        const current = spaceCalendarDateKey(date);
+
+        return reservations.filter(function (reservation) {
+            const start =
+                spaceCalendarParseDate(
+                    reservation.start_date
+                );
+
+            const end =
+                spaceCalendarParseDate(
+                    reservation.end_date
+                );
+
+            if (!start || !end) {
+                return false;
+            }
+
+            return (
+                current >= spaceCalendarDateKey(start) &&
+                current <= spaceCalendarDateKey(end)
+            );
+        });
+    }
+
+    function renderSpaceCalendar(data) {
+
+        const monthElement =
+            document.getElementById(
+                "spaceCalendarMonth"
+            );
+
+        const summaryElement =
+            document.getElementById(
+                "spaceCalendarSummary"
+            );
+
+        const gridElement =
+            document.getElementById(
+                "spaceCalendarGrid"
+            );
+
+        if (!monthElement || !summaryElement || !gridElement) {
+            return;
+        }
+
+        const year =
+            spaceCalendarDate.getFullYear();
+
+        const month =
+            spaceCalendarDate.getMonth();
+
+        const firstDay =
+            new Date(year, month, 1);
+
+        const lastDay =
+            new Date(year, month + 1, 0);
+
+        monthElement.textContent =
+            firstDay.toLocaleDateString(
+                "en-IN",
+                {
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+        const reservations =
+            data.reservations || [];
+
+        const capacity =
+            Number(data.capacity || 4);
+
+        const firstWeekday =
+            firstDay.getDay();
+
+        const daysInMonth =
+            lastDay.getDate();
+
+        let cells = "";
+
+        for (
+            let index = 0;
+            index < firstWeekday;
+            index++
+        ) {
+            cells += `
+                <div
+                    class="
+                        space-admin-calendar-day
+                        space-admin-calendar-empty
+                    "
+                ></div>
+            `;
+        }
+
+        let totalReservedDays = 0;
+
+        for (
+            let day = 1;
+            day <= daysInMonth;
+            day++
+        ) {
+
+            const date =
+                new Date(
+                    year,
+                    month,
+                    day
+                );
+
+            const dayReservations =
+                spaceCalendarReservationsForDate(
+                    reservations,
+                    date
+                );
+
+            const booked =
+                dayReservations.length;
+
+            const available =
+                Math.max(
+                    capacity - booked,
+                    0
+                );
+
+            const isToday =
+                spaceCalendarDateKey(date) ===
+                spaceCalendarDateKey(new Date());
+
+            const isFull =
+                booked >= capacity;
+
+            if (booked > 0) {
+                totalReservedDays++;
+            }
+
+            const reservationMarkup =
+                dayReservations
+                    .map(function (reservation) {
+
+                        return `
+                            <div
+                                class="space-admin-calendar-reservation"
+                            >
+                                <strong>
+                                    ${spaceCalendarEscape(
+                                        reservation.member_name ||
+                                        reservation.member ||
+                                        "Member"
+                                    )}
+                                </strong>
+
+                                <span>
+                                    ${spaceCalendarEscape(
+                                        reservation.plan_name ||
+                                        reservation.space_plan ||
+                                        "Space Plan"
+                                    )}
+                                </span>
+                            </div>
+                        `;
+
+                    })
+                    .join("");
+
+            cells += `
+                <div
+                    class="
+                        space-admin-calendar-day
+                        ${isFull
+                            ? "space-admin-calendar-full"
+                            : "space-admin-calendar-available"}
+                        ${isToday
+                            ? "space-admin-calendar-today"
+                            : ""}
+                    "
+                    title="${spaceCalendarEscape(
+                        `${booked} booked, ${available} available`
+                    )}"
+                >
+
+                    <div
+                        class="space-admin-calendar-day-number"
+                    >
+                        <strong>
+                            ${day}
+                        </strong>
+
+                        <span
+                            class="space-admin-calendar-capacity"
+                        >
+                            ${booked}/${capacity}
+                        </span>
+                    </div>
+
+                    ${reservationMarkup}
+
+                </div>
+            `;
+        }
+
+        gridElement.innerHTML = cells;
+
+        summaryElement.textContent =
+            `${reservations.length} active reservation` +
+            `${reservations.length === 1 ? "" : "s"} · ` +
+            `${totalReservedDays} day` +
+            `${totalReservedDays === 1 ? "" : "s"} with reservations · ` +
+            `${capacity} people daily capacity`;
+    }
+
+    async function loadSpaceCalendar() {
+
+        const month =
+            `${spaceCalendarDate.getFullYear()}-` +
+            `${String(
+                spaceCalendarDate.getMonth() + 1
+            ).padStart(2, "0")}`;
+
+        try {
+
+            const data =
+                await OpenShelf.apiGet(
+                    `${API}.get_admin_space_calendar` +
+                    `?month=${encodeURIComponent(month)}`
+                );
+
+            renderSpaceCalendar(data);
+
+        } catch (error) {
+
+            console.error(
+                "Admin space calendar error:",
+                error
+            );
+
+            const summaryElement =
+                document.getElementById(
+                    "spaceCalendarSummary"
+                );
+
+            if (summaryElement) {
+                summaryElement.textContent =
+                    error.message ||
+                    "Unable to load working-space reservations.";
+            }
+
+        }
+    }
+
+    const previousCalendarButton =
+        document.getElementById(
+            "spaceCalendarPrevious"
+        );
+
+    const nextCalendarButton =
+        document.getElementById(
+            "spaceCalendarNext"
+        );
+
+    if (previousCalendarButton) {
+        previousCalendarButton.addEventListener(
+            "click",
+            function () {
+
+                spaceCalendarDate =
+                    new Date(
+                        spaceCalendarDate.getFullYear(),
+                        spaceCalendarDate.getMonth() - 1,
+                        1
+                    );
+
+                loadSpaceCalendar();
+            }
+        );
+    }
+
+    if (nextCalendarButton) {
+        nextCalendarButton.addEventListener(
+            "click",
+            function () {
+
+                spaceCalendarDate =
+                    new Date(
+                        spaceCalendarDate.getFullYear(),
+                        spaceCalendarDate.getMonth() + 1,
+                        1
+                    );
+
+                loadSpaceCalendar();
+            }
+        );
+    }
+
     async function logout() {
         try {
             await fetch(
@@ -1160,7 +1706,11 @@
     }
 
     async function initializeAdmin() {
-        await loadDashboard();
+        const dashboardLoaded = await loadDashboard();
+
+        if (dashboardLoaded) {
+            await loadSpaceCalendar();
+        }
     }
 
     initializeAdmin();

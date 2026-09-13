@@ -1467,6 +1467,168 @@ def get_admin_dashboard():
     }
 
 
+@frappe.whitelist()
+def get_admin_space_calendar(month=None):
+    """
+    Return working-space reservations for an admin calendar month.
+
+    Space Access is the source of truth.
+    Only System Manager users may access this endpoint.
+    """
+
+    if frappe.session.user == "Guest":
+        frappe.throw(
+            "Please login to access the admin working-space calendar."
+        )
+
+    if "System Manager" not in frappe.get_roles():
+        frappe.throw(
+            "You are not authorized to access the admin working-space calendar."
+        )
+
+    if month:
+        try:
+            month_date = getdate(f"{month}-01")
+        except Exception:
+            frappe.throw("Invalid calendar month.")
+    else:
+        month_date = getdate(today())
+
+    month_start = month_date.replace(day=1)
+
+    if month_start.month == 12:
+        next_month = month_start.replace(
+            year=month_start.year + 1,
+            month=1,
+            day=1,
+        )
+    else:
+        next_month = month_start.replace(
+            month=month_start.month + 1,
+            day=1,
+        )
+
+    month_end = add_days(next_month, -1)
+
+    accesses = frappe.get_all(
+        "Space Access",
+        filters={
+            "status": "Active",
+            "start_date": ["<=", month_end],
+            "end_date": [">=", month_start],
+        },
+        fields=[
+            "name",
+            "member",
+            "space_plan",
+            "sales_invoice",
+            "payment",
+            "start_date",
+            "end_date",
+            "status",
+            "creation",
+        ],
+        order_by="start_date asc, creation asc",
+    )
+
+    reservations = []
+
+    for access in accesses:
+        plan = frappe.db.get_value(
+            "Space Plan",
+            access["space_plan"],
+            [
+                "plan_name",
+                "billing_period",
+                "daily_capacity",
+                "max_hours_per_day",
+                "wifi_included",
+            ],
+            as_dict=True,
+        ) or {}
+
+        member_name = access.get("member") or ""
+
+        full_name = ""
+        if member_name:
+            full_name = (
+                frappe.db.get_value(
+                    "Member",
+                    member_name,
+                    "full_name",
+                )
+                or member_name
+            )
+
+        reservations.append(
+            {
+                "name": access["name"],
+                "member": member_name,
+                "member_name": full_name,
+                "space_plan": access["space_plan"],
+                "plan_name": plan.get("plan_name")
+                    or access["space_plan"],
+                "billing_period": plan.get("billing_period"),
+                "daily_capacity": int(
+                    plan.get("daily_capacity") or 0
+                ),
+                "max_hours_per_day": plan.get(
+                    "max_hours_per_day"
+                ),
+                "wifi_included": bool(
+                    plan.get("wifi_included")
+                ),
+                "sales_invoice": access.get(
+                    "sales_invoice"
+                ),
+                "payment": access.get("payment"),
+                "start_date": str(
+                    access["start_date"]
+                ) if access.get("start_date") else None,
+                "end_date": str(
+                    access["end_date"]
+                ) if access.get("end_date") else None,
+                "status": access.get("status"),
+            }
+        )
+
+    capacities = frappe.get_all(
+        "Space Plan",
+        filters={
+            "active": 1,
+        },
+        fields=[
+            "daily_capacity",
+        ],
+    )
+
+    configured_capacities = []
+
+    for row in capacities:
+        try:
+            value = int(row.get("daily_capacity") or 0)
+        except (TypeError, ValueError):
+            value = 0
+
+        if value > 0:
+            configured_capacities.append(value)
+
+    capacity = (
+        max(configured_capacities)
+        if configured_capacities
+        else 4
+    )
+
+    return {
+        "success": True,
+        "month": month_start.strftime("%Y-%m"),
+        "month_start": str(month_start),
+        "month_end": str(month_end),
+        "capacity": capacity,
+        "reservations": reservations,
+    }
+
+
 # ============================================================
 # RAZORPAY
 # ============================================================
@@ -4809,6 +4971,105 @@ def seed_space_plans():
 
 
 # ============================================================
+
+# ============================================================
+# SPACE WORKING CAPACITY
+# ============================================================
+
+def _space_capacity_for_plan(space_plan):
+    capacity = frappe.db.get_value(
+        "Space Plan",
+        space_plan,
+        "daily_capacity",
+    )
+
+    try:
+        capacity = int(capacity or 0)
+    except (TypeError, ValueError):
+        capacity = 0
+
+    return capacity if capacity > 0 else 4
+
+
+def _space_usage_for_date(booking_date):
+    return frappe.db.count(
+        "Space Access",
+        filters={
+            "status": "Active",
+            "start_date": ["<=", booking_date],
+            "end_date": [">=", booking_date],
+        },
+    )
+
+
+@frappe.whitelist()
+def get_space_availability(space_plan, booking_date):
+    if not space_plan:
+        frappe.throw("Space Plan is required.")
+
+    if not booking_date:
+        frappe.throw("Working-space date is required.")
+
+    plan = frappe.get_doc("Space Plan", space_plan)
+
+    if not plan.active:
+        frappe.throw("This Space Plan is not currently available.")
+
+    capacity = _space_capacity_for_plan(space_plan)
+    used = _space_usage_for_date(booking_date)
+
+    return {
+        "success": True,
+        "space_plan": space_plan,
+        "booking_date": booking_date,
+        "capacity": capacity,
+        "used": used,
+        "available": max(capacity - used, 0),
+        "is_available": used < capacity,
+    }
+
+
+def _validate_space_capacity(space_plan, booking_date):
+    plan = frappe.get_doc("Space Plan", space_plan)
+
+    booking_date = getdate(booking_date)
+
+    if plan.billing_period == "Per Pass":
+        dates_to_check = [booking_date]
+
+    elif plan.billing_period == "Monthly":
+        end_date = add_months(booking_date, 1)
+        dates_to_check = []
+
+        current_date = booking_date
+
+        while current_date < end_date:
+            dates_to_check.append(current_date)
+            current_date = add_days(current_date, 1)
+
+    else:
+        frappe.throw(
+            f"Unsupported Space Plan billing period: "
+            f"{plan.billing_period}"
+        )
+
+    capacity = _space_capacity_for_plan(space_plan)
+
+    for check_date in dates_to_check:
+        used = _space_usage_for_date(check_date)
+
+        if used >= capacity:
+            frappe.throw(
+                f"The working space is full for {check_date}. "
+                "Please choose another date."
+            )
+
+    return {
+        "capacity": capacity,
+        "dates_checked": len(dates_to_check),
+        "is_available": True,
+    }
+
 # SPACE PLAN PURCHASE / ACCESS
 # ============================================================
 
@@ -4885,6 +5146,14 @@ def _activate_space_access(invoice, payment_name):
 
     start_date = getdate(today())
 
+    remarks = (invoice.remarks or "").strip()
+    booking_prefix = "Space Plan Booking Date:"
+
+    if remarks.startswith(booking_prefix):
+        selected_date = remarks[len(booking_prefix):].strip()
+        if selected_date:
+            start_date = getdate(selected_date)
+
     if space_plan.billing_period == "Per Pass":
         end_date = start_date
 
@@ -4916,7 +5185,11 @@ def _activate_space_access(invoice, payment_name):
 
 
 @frappe.whitelist()
-def create_space_plan_invoice(space_plan, customer_name=None):
+def create_space_plan_invoice(space_plan, customer_name=None, booking_date=None):
+    # Frappe may expose request parameters through form_dict depending
+    # on how the frontend sends the POST request. Keep the explicit
+    # argument first, then fall back to the request value.
+    booking_date = booking_date or frappe.form_dict.get("booking_date")
     """
     Create a Sales Invoice for an active Space Plan.
 
@@ -4938,6 +5211,23 @@ def create_space_plan_invoice(space_plan, customer_name=None):
         frappe.throw(
             "This Space Plan is not currently available."
         )
+
+    # Accept the selected date when supplied. If the request reaches
+    # the backend without the field, use today rather than blocking
+    # the existing working-space purchase flow.
+    booking_date = booking_date or frappe.form_dict.get("booking_date")
+    booking_date = booking_date or today()
+    booking_date = getdate(booking_date)
+
+    if booking_date < getdate(today()):
+        frappe.throw(
+            "Working-space date cannot be in the past."
+        )
+
+    _validate_space_capacity(
+        space_plan=space_plan,
+        booking_date=booking_date,
+    )
 
     if not customer_name:
         customer_name = member_doc.full_name
@@ -4964,6 +5254,10 @@ def create_space_plan_invoice(space_plan, customer_name=None):
         "qty": 1,
         "rate": price,
     })
+
+    invoice.remarks = (
+        f"Space Plan Booking Date: {booking_date}"
+    )
 
     invoice.insert(
         ignore_permissions=True
