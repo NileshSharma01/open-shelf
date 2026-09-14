@@ -40,5 +40,44 @@
 })();
 </script>
 
+
+<script>
+(function () {
+    async function updateNavigation() {
+        try {
+            const response = await fetch(
+                "/api/method/frappe.auth.get_logged_user",
+                {
+                    credentials: "same-origin",
+                    cache: "no-store"
+                }
+            );
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const user = data.message;
+
+            if (!user || user === "Guest") return;
+
+            document.querySelectorAll('a[href="/login"]').forEach(function (link) {
+                link.setAttribute("href", "/profile");
+                link.textContent = "My Account";
+                link.onclick = null;
+                link.removeAttribute("onclick");
+            });
+        } catch (error) {
+            console.debug("Navigation session check skipped:", error);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", updateNavigation);
+    } else {
+        updateNavigation();
+    }
+})();
+</script>
+
 </body>
 </html>

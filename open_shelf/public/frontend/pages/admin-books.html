@@ -1234,5 +1234,123 @@
 })();
 </script>
 
+
+
+<script id="openshelf-navigation-fix">
+(function () {
+    "use strict";
+
+    function cleanText(value) {
+        return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function fixLinks() {
+        document.querySelectorAll("a").forEach(function (link) {
+            var text = cleanText(link.textContent);
+
+            if (text === "my account") {
+                link.href = "/assets/open_shelf/frontend/pages/profile.html";
+                link.removeAttribute("onclick");
+                link.removeAttribute("data-bs-toggle");
+                link.removeAttribute("data-bs-target");
+                link.removeAttribute("data-toggle");
+            }
+
+            if (text === "explore our collection") {
+                link.href = "/catalogue";
+                link.removeAttribute("onclick");
+                link.removeAttribute("data-bs-toggle");
+                link.removeAttribute("data-bs-target");
+                link.removeAttribute("data-toggle");
+            }
+        });
+    }
+
+    document.addEventListener("click", function (event) {
+        var link = event.target.closest("a");
+        if (!link) return;
+
+        var text = cleanText(link.textContent);
+
+        if (text === "my account") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.stopImmediatePropagation) {
+                event.stopImmediatePropagation();
+            }
+            window.location.assign("/assets/open_shelf/frontend/pages/profile.html");
+            return;
+        }
+
+        if (text === "explore our collection") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.stopImmediatePropagation) {
+                event.stopImmediatePropagation();
+            }
+            window.location.assign("/catalogue");
+        }
+    }, true);
+
+    async function updateLoggedInNavigation() {
+        try {
+            var response = await fetch(
+                "/api/method/frappe.auth.get_logged_user",
+                {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+            if (!response.ok) return;
+
+            var data = await response.json();
+            var user = data.message;
+
+            if (!user || user === "Guest") {
+                fixLinks();
+                return;
+            }
+
+            document.querySelectorAll("a").forEach(function (link) {
+                var text = cleanText(link.textContent);
+
+                if (
+                    text === "login" ||
+                    link.getAttribute("href") === "/login" ||
+                    link.getAttribute("href") === "/login/"
+                ) {
+                    link.textContent = "My Account";
+                    link.href = "/assets/open_shelf/frontend/pages/profile.html";
+                    link.removeAttribute("onclick");
+                    link.removeAttribute("data-bs-toggle");
+                    link.removeAttribute("data-bs-target");
+                    link.removeAttribute("data-toggle");
+                }
+            });
+
+            fixLinks();
+        } catch (error) {
+            console.debug("Open Shelf navigation check skipped:", error);
+        }
+    }
+
+    function start() {
+        fixLinks();
+        updateLoggedInNavigation();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", start, { once: true });
+    } else {
+        start();
+    }
+})();
+</script>
+
 </body>
 </html>
