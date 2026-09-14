@@ -679,9 +679,22 @@
                 <td>
                     <strong>
                         ${OpenShelf.escapeHtml(
-                            membership.name
+                            membership.member_full_name ||
+                            "Membership"
                         )}
                     </strong>
+                    <div
+                        style="
+                            font-size:12px;
+                            color:#6b7280;
+                            margin-top:3px;
+                        "
+                    >
+                        ${OpenShelf.escapeHtml(
+                            membership.plan_display_name ||
+                            "Membership"
+                        )}
+                    </div>
                 </td>
 
                 <td>
@@ -691,17 +704,7 @@
                         )}
                     </strong>
 
-                    <div
-                        style="
-                            font-size:12px;
-                            color:#6b7280;
-                            margin-top:3px;
-                        "
-                    >
-                        ${OpenShelf.escapeHtml(
-                            membership.member
-                        )}
-                    </div>
+
                 </td>
 
                 <td>
@@ -711,9 +714,11 @@
                 </td>
 
                 <td>
-                    ${OpenShelf.escapeHtml(
-                        membership.sales_invoice || "-"
-                    )}
+                    ${
+                        membership.sales_invoice
+                            ? "Payment linked"
+                            : "—"
+                    }
                 </td>
 
                 <td>

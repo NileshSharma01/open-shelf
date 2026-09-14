@@ -1049,15 +1049,19 @@
             row.innerHTML = `
                 <td>
                     <div class="payment-number">
-                        ${escapeHtml(payment.name || "—")}
+                        ${escapeHtml(
+                            payment.payment_status || "Payment"
+                        )}
                     </div>
                 </td>
 
                 <td>
                     <div class="invoice-number">
-                        ${escapeHtml(
-                            payment.sales_invoice || "—"
-                        )}
+                        ${
+                            payment.sales_invoice
+                                ? "Payment linked"
+                                : "—"
+                        }
                     </div>
                 </td>
 
@@ -1067,16 +1071,7 @@
                         ${escapeHtml(customer)}
                     </div>
 
-                    ${
-                        payment.member
-                            ? `
-                                <div class="subtext">
-                                    Member ID:
-                                    ${escapeHtml(payment.member)}
-                                </div>
-                            `
-                            : ""
-                    }
+
 
                     ${
                         payment.customer_name &&

@@ -743,20 +743,16 @@
 
             return `
                 <tr>
-                    <td><strong>${escape(rental.name)}</strong></td>
-
                     <td>
-                        <strong>${escape(rental.book_title)}</strong><br>
-                        <small>${escape(rental.book)}</small>
+                        <strong>Rental</strong>
                     </td>
 
                     <td>
-                        ${escape(rental.member_name)}
-                        ${
-                            rental.member
-                                ? `<br><small>${escape(rental.member)}</small>`
-                                : ""
-                        }
+                        <strong>${escape(rental.book_title || "Book")}</strong>
+                    </td>
+
+                    <td>
+                        ${escape(rental.member_name || "Customer")}
                     </td>
 
                     <td>${escape(rental.rental_plan_name)}</td>
