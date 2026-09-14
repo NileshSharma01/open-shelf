@@ -258,8 +258,7 @@
 
     const languageSelect =
         document.getElementById("languageSelect");
-
-    const resultsCount =
+const resultsCount =
         document.getElementById("resultsCount");
 
 
@@ -487,8 +486,7 @@
             ]);
 
             loadLanguages();
-
-            displayBooks(allBooks);
+displayBooks(allBooks);
 
         }
 
@@ -698,77 +696,48 @@
 
     }
 
-
     function applyFilters() {
 
-        const search =
-            searchInput.value
-                .trim()
-                .toLowerCase();
+        const search = searchInput.value.trim().toLowerCase();
+        const category = categorySelect.value;
+        const author = authorSelect.value;
+        const language = languageSelect.value;
+const filtered = allBooks.filter(function (book) {
 
+            const title = String(book.book_title || "").toLowerCase();
+            const isbn = String(book.isbn || "").toLowerCase();
+            const authorName = String(book.author || "").toLowerCase();
+            const publisherName = String(book.publisher || "").toLowerCase();
+            const categoryName = String(book.category || "").toLowerCase();
+            const languageName = String(book.language || "").toLowerCase();
+const description = String(book.description || "").toLowerCase();
+            const edition = String(book.edition || "").toLowerCase();
+            const publicationYear = String(book.publication_year || "").toLowerCase();
 
-        const category =
-            categorySelect.value;
+            const matchesSearch = !search ||
+                title.includes(search) ||
+                isbn.includes(search) ||
+                authorName.includes(search) ||
+                publisherName.includes(search) ||
+                categoryName.includes(search) ||
+                languageName.includes(search) ||
+                description.includes(search) ||
+                edition.includes(search) ||
+                publicationYear.includes(search);
 
-        const author =
-            authorSelect.value;
-
-
-        const language =
-            languageSelect.value;
-
-
-        const filtered =
-            allBooks.filter(
-                function (book) {
-
-                    const title =
-                        String(
-                            book.book_title || ""
-                        ).toLowerCase();
-
-                    const isbn =
-                        String(
-                            book.isbn || ""
-                        ).toLowerCase();
-
-
-                    const matchesSearch =
-                        !search ||
-                        title.includes(search) ||
-                        isbn.includes(search);
-
-
-                    const matchesCategory =
-                        !category ||
-                        book.category_id === category;
-
-                    const matchesAuthor =
-                        !author ||
-                        book.author_id === author;
-
-
-                    const matchesLanguage =
-                        !language ||
-                        String(book.language || "") === language;
-
-
-                    return (
-                        matchesSearch &&
-                        matchesCategory &&
-                        matchesAuthor &&
-                        matchesLanguage
-                    );
-
-                }
-            );
-
+            const matchesCategory = !category || book.category_id === category;
+            const matchesAuthor = !author || book.author_id === author;
+            const matchesLanguage = !language || languageName === language.toLowerCase();
+return matchesSearch &&
+                matchesCategory &&
+                matchesAuthor &&
+                matchesLanguage;
+        });
 
         displayBooks(filtered);
-
     }
 
-
+    searchInput.addEventListener(
     searchInput.addEventListener(
         "input",
         applyFilters
@@ -790,9 +759,7 @@
         "change",
         applyFilters
     );
-
-
-    loadBooks();
+loadBooks();
 
 })();
 
