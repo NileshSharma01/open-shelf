@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Explore Our Collection | Open Shelf Reading Foundation</title>
+
+    <meta
+        name="description"
+        content="Browse the Open Shelf Reading Foundation book catalogue."
+    >
+
+    <link
+        rel="stylesheet"
+        href="/assets/open_shelf/css/open_shelf.css"
+    >
+
+</head>
+
+
+<body>
+
+<header class="navbar">
+
+    <div class="container navbar-inner">
+
+        <a href="/" class="brand">
+
+            <div class="brand-mark">
+                OS
+            </div>
+
+            <div class="brand-text">
+                <strong>Open Shelf</strong>
+                <span>Reading Foundation</span>
+            </div>
+
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a
+                href="/catalogue"
+                class="active"
+            >
+                Explore Our Collection
+            </a>
+
+            <a href="/space-plans">
+                Book a Working Spot
+            </a>
+
+            <a href="/membership">
+                Become a Member
+            </a>
+
+            <a href="/rental">
+                Rentals
+            </a>
+            <a href="/events">
+                Upcoming Events
+            </a>
+
+            <a href="/about">
+                About
+            </a>
+
+            <a href="/contact">
+                Contact
+            </a>
+
+        </nav>
+
+
+        <div class="nav-actions">
+
+            <a
+                href="/login"
+                class="btn btn-outline"
+            >
+                Login
+            </a>
+
+            <a
+                href="/membership"
+                class="btn btn-primary"
+            >
+                Join Us
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="page-header">
+
+    <div class="container">
+
+        <p class="eyebrow">
+            EXPLORE OUR COLLECTION
+        </p>
+
+        <h1 class="page-title">
+            Explore Our Collection
+        </h1>
+
+        <p class="page-description">
+            Explore Our Collection of books and discover
+            something worth reading.
+        </p>
+
+    </div>
+
+</section>
+
+
+<section class="catalogue-section">
+
+    <div class="container">
+
+        <div class="filters">
+
+            <input
+                type="search"
+                id="searchInput"
+                class="search-box"
+                placeholder="Search books by title or ISBN..."
+            >
+
+            <select
+                id="categorySelect"
+                class="category-select"
+            >
+
+                <option value="">
+                    All Categories
+                </option>
+
+            </select>
+
+            <select
+                id="authorSelect"
+                class="category-select"
+            >
+
+                <option value="">
+                    All Authors
+                </option>
+
+            </select>
+
+
+            <select
+                id="languageSelect"
+                class="category-select"
+            >
+
+                <option value="">
+                    All Languages
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="results-bar">
+
+            <span
+                id="resultsCount"
+                class="results-count"
+            >
+                Loading books...
+            </span>
+
+        </div>
+
+
+        <div
+            id="booksGrid"
+            class="books-grid"
+        >
+
+            <div class="loading">
+                Loading Explore Our Collection...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="container footer-content">
+
+        <div>
+            <strong>
+                Open Shelf Reading Foundation
+            </strong>
+        </div>
+
+        <div class="footer-text">
+            Books • Reading • Community
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script src="/assets/open_shelf/frontend/js/app.js"></script>
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const API =
+        "/api/method/open_shelf.api.api";
+
+
+    const booksGrid =
+        document.getElementById("booksGrid");
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const categorySelect =
+        document.getElementById("categorySelect");
+
+    const authorSelect =
+        document.getElementById("authorSelect");
+
+    const languageSelect =
+        document.getElementById("languageSelect");
+
+    const resultsCount =
+        document.getElementById("resultsCount");
+
+
+    let allBooks = [];
+
+
+    function escapeHtml(value) {
+
+        return OpenShelf.escapeHtml(value);
+
+    }
+
+
+    function formatPrice(price) {
+
+        const value =
+            Number(price || 0);
+
+        if (!value) {
+            return "Price unavailable";
+        }
+
+        return OpenShelf.formatPrice(value);
+
+    }
+
+
+    function getBookCover(book) {
+
+        if (book.image) {
+
+            return `
+                <img
+                    src="${escapeHtml(book.image)}"
+                    alt="${escapeHtml(book.book_title)}"
+                    loading="lazy"
+                >
+            `;
+
+        }
+
+        return `
+            <div class="cover-placeholder">
+                OS
+            </div>
+        `;
+
+    }
+
+
+    function createBookCard(book) {
+
+        const availableCopies =
+            Number(book.available_copies || 0);
+
+        const isAvailable =
+            availableCopies > 0;
+
+        const category =
+            book.category || "Book";
+
+        const author =
+            book.author || "Author not specified";
+
+
+        const bookUrl =
+            "/assets/open_shelf/frontend/pages/book.html?name=" +
+            encodeURIComponent(book.name);
+
+
+        return `
+
+            <article class="book-card">
+
+                <a href="${bookUrl}">
+
+                    <div class="book-cover">
+                        ${getBookCover(book)}
+                    </div>
+
+                </a>
+
+
+                <div class="book-content">
+
+                    <div class="book-category">
+                        ${escapeHtml(category)}
+                    </div>
+
+
+                    <h2 class="book-title">
+
+                        <a href="${bookUrl}">
+                            ${escapeHtml(book.book_title)}
+                        </a>
+
+                    </h2>
+
+
+                    <div class="book-author">
+                        By ${escapeHtml(author)}
+                    </div>
+
+
+                    <div class="book-bottom">
+
+                        <div class="book-price">
+                            ${formatPrice(book.selling_price)}
+                        </div>
+
+                        <div
+                            class="availability ${
+                                isAvailable
+                                    ? ""
+                                    : "unavailable"
+                            }"
+                        >
+                            ${
+                                isAvailable
+                                    ? `${availableCopies} available`
+                                    : "Unavailable"
+                            }
+                        </div>
+
+                    </div>
+
+
+                    <a
+                        class="view-button"
+                        href="${bookUrl}"
+                    >
+                        View Book
+                    </a>
+
+                </div>
+
+            </article>
+
+        `;
+
+    }
+
+
+    function displayBooks(books) {
+
+        if (!books.length) {
+
+            booksGrid.innerHTML = `
+                <div class="empty">
+                    No books found.
+                </div>
+            `;
+
+            resultsCount.textContent =
+                "0 books";
+
+            return;
+
+        }
+
+
+        booksGrid.innerHTML =
+            books
+                .map(createBookCard)
+                .join("");
+
+
+        resultsCount.textContent =
+            `${books.length} book${
+                books.length === 1
+                    ? ""
+                    : "s"
+            }`;
+
+    }
+
+
+    async function loadBooks() {
+
+        booksGrid.innerHTML = `
+            <div class="loading">
+                Loading Explore Our Collection...
+            </div>
+        `;
+
+        resultsCount.textContent =
+            "Loading books...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}.get_books`,
+                    {
+                        credentials: "include"
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                data.exception ||
+                data.exc
+            ) {
+                throw new Error(
+                    data.exception ||
+                    data.message ||
+                    "Unable to load Explore Our Collection."
+                );
+            }
+
+
+            allBooks =
+                data.message || [];
+
+
+            await Promise.all([
+                loadCategories(),
+                loadAuthors()
+            ]);
+
+            loadLanguages();
+
+            displayBooks(allBooks);
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            booksGrid.innerHTML = `
+                <div class="error">
+                    Unable to load the Explore Our Collection.
+                    Please try again.
+                </div>
+            `;
+
+            resultsCount.textContent =
+                "Explore Our Collection unavailable";
+
+        }
+
+    }
+
+
+    async function loadCategories() {
+
+        const response =
+            await fetch(
+                `${API}.get_categories`,
+                {
+                    credentials: "include"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            data.exception ||
+            data.exc
+        ) {
+            throw new Error(
+                data.exception ||
+                data.message ||
+                "Unable to load categories."
+            );
+        }
+
+        const categories =
+            data.message || [];
+
+        categorySelect.innerHTML = `
+            <option value="">
+                All Categories
+            </option>
+        `;
+
+        categories.forEach(
+            function (item) {
+
+                const categoryId =
+                    item.name;
+
+                const categoryName =
+                    item.category_name ||
+                    item.name;
+
+                if (!categoryId || !categoryName) {
+                    return;
+                }
+
+                const option =
+                    document.createElement("option");
+
+                option.value =
+                    categoryId;
+
+                option.textContent =
+                    categoryName;
+
+                categorySelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+
+
+    async function loadAuthors() {
+
+        const response =
+            await fetch(
+                `${API}.get_authors`,
+                {
+                    credentials: "include"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            data.exception ||
+            data.exc
+        ) {
+            throw new Error(
+                data.exception ||
+                data.message ||
+                "Unable to load authors."
+            );
+        }
+
+        const authors =
+            data.message || [];
+
+        authorSelect.innerHTML = `
+            <option value="">
+                All Authors
+            </option>
+        `;
+
+        authors.forEach(
+            function (item) {
+
+                const authorId =
+                    item.name;
+
+                const authorName =
+                    item.author_name ||
+                    item.name;
+
+                if (!authorId || !authorName) {
+                    return;
+                }
+
+                const option =
+                    document.createElement("option");
+
+                option.value =
+                    authorId;
+
+                option.textContent =
+                    authorName;
+
+                authorSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+
+
+    function loadLanguages() {
+
+        const languages = [
+            ...new Set(
+                allBooks
+                    .map(function (book) {
+                        return String(
+                            book.language || ""
+                        ).trim();
+                    })
+                    .filter(function (language) {
+                        return Boolean(language);
+                    })
+            )
+        ].sort(function (a, b) {
+            return a.localeCompare(
+                b,
+                undefined,
+                {
+                    sensitivity: "base"
+                }
+            );
+        });
+
+
+        languageSelect.innerHTML = `
+            <option value="">
+                All Languages
+            </option>
+        `;
+
+
+        languages.forEach(
+            function (language) {
+
+                const option =
+                    document.createElement("option");
+
+                option.value =
+                    language;
+
+                option.textContent =
+                    language;
+
+                languageSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+
+
+    function applyFilters() {
+
+        const search =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+
+        const category =
+            categorySelect.value;
+
+        const author =
+            authorSelect.value;
+
+
+        const language =
+            languageSelect.value;
+
+
+        const filtered =
+            allBooks.filter(
+                function (book) {
+
+                    const title =
+                        String(
+                            book.book_title || ""
+                        ).toLowerCase();
+
+                    const isbn =
+                        String(
+                            book.isbn || ""
+                        ).toLowerCase();
+
+
+                    const matchesSearch =
+                        !search ||
+                        title.includes(search) ||
+                        isbn.includes(search);
+
+
+                    const matchesCategory =
+                        !category ||
+                        book.category_id === category;
+
+                    const matchesAuthor =
+                        !author ||
+                        book.author_id === author;
+
+
+                    const matchesLanguage =
+                        !language ||
+                        String(book.language || "") === language;
+
+
+                    return (
+                        matchesSearch &&
+                        matchesCategory &&
+                        matchesAuthor &&
+                        matchesLanguage
+                    );
+
+                }
+            );
+
+
+        displayBooks(filtered);
+
+    }
+
+
+    searchInput.addEventListener(
+        "input",
+        applyFilters
+    );
+
+
+    categorySelect.addEventListener(
+        "change",
+        applyFilters
+    );
+
+    authorSelect.addEventListener(
+        "change",
+        applyFilters
+    );
+
+
+    languageSelect.addEventListener(
+        "change",
+        applyFilters
+    );
+
+
+    loadBooks();
+
+})();
+
+</script>
+
+
+
+<script id="openshelf-navigation-fix">
+(function () {
+    "use strict";
+
+    function cleanText(value) {
+        return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+    }
+
+    function fixLinks() {
+        document.querySelectorAll("a").forEach(function (link) {
+            var text = cleanText(link.textContent);
+
+            if (text === "my account") {
+                link.href = "/assets/open_shelf/frontend/pages/profile.html";
+                link.removeAttribute("onclick");
+                link.removeAttribute("data-bs-toggle");
+                link.removeAttribute("data-bs-target");
+                link.removeAttribute("data-toggle");
+            }
+
+            if (text === "explore our collection") {
+                link.href = "/catalogue";
+                link.removeAttribute("onclick");
+                link.removeAttribute("data-bs-toggle");
+                link.removeAttribute("data-bs-target");
+                link.removeAttribute("data-toggle");
+            }
+        });
+    }
+
+    document.addEventListener("click", function (event) {
+        var link = event.target.closest("a");
+        if (!link) return;
+
+        var text = cleanText(link.textContent);
+
+        if (text === "my account") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.stopImmediatePropagation) {
+                event.stopImmediatePropagation();
+            }
+            window.location.assign("/assets/open_shelf/frontend/pages/profile.html");
+            return;
+        }
+
+        if (text === "explore our collection") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.stopImmediatePropagation) {
+                event.stopImmediatePropagation();
+            }
+            window.location.assign("/catalogue");
+        }
+    }, true);
+
+    async function updateLoggedInNavigation() {
+        try {
+            var response = await fetch(
+                "/api/method/frappe.auth.get_logged_user",
+                {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+            if (!response.ok) return;
+
+            var data = await response.json();
+            var user = data.message;
+
+            if (!user || user === "Guest") {
+                fixLinks();
+                return;
+            }
+
+            document.querySelectorAll("a").forEach(function (link) {
+                var text = cleanText(link.textContent);
+
+                if (
+                    text === "login" ||
+                    link.getAttribute("href") === "/login" ||
+                    link.getAttribute("href") === "/login/"
+                ) {
+                    link.textContent = "My Account";
+                    link.href = "/assets/open_shelf/frontend/pages/profile.html";
+                    link.removeAttribute("onclick");
+                    link.removeAttribute("data-bs-toggle");
+                    link.removeAttribute("data-bs-target");
+                    link.removeAttribute("data-toggle");
+                }
+            });
+
+            fixLinks();
+        } catch (error) {
+            console.debug("Open Shelf navigation check skipped:", error);
+        }
+    }
+
+    function start() {
+        fixLinks();
+        updateLoggedInNavigation();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", start, { once: true });
+    } else {
+        start();
+    }
+})();
+</script>
+
+</body>
+</html>

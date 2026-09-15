@@ -41,14 +41,43 @@
 
     }
 
-    function isLoggedIn() {
+    async function isLoggedIn() {
 
-        return document.cookie.indexOf(
-            "sid="
-        ) !== -1 &&
-        document.cookie.indexOf(
-            "sid=Guest"
-        ) === -1;
+        try {
+
+            const response =
+                await fetch(
+                    "/api/method/frappe.auth.get_logged_user",
+                    {
+                        method: "GET",
+                        credentials: "same-origin",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    }
+                );
+
+            if (!response.ok) {
+                return false;
+            }
+
+            const data =
+                await response.json();
+
+            const user =
+                data &&
+                data.message;
+
+            return Boolean(
+                user &&
+                user !== "Guest"
+            );
+
+        } catch (error) {
+
+            return false;
+
+        }
 
     }
 
@@ -449,13 +478,13 @@
 
     }
 
-    function init() {
+    async function init() {
 
         if (isExcludedPage()) {
             return;
         }
 
-        if (isLoggedIn()) {
+        if (await isLoggedIn()) {
             return;
         }
 
